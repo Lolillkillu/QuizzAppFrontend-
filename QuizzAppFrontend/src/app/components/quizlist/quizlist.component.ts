@@ -6,7 +6,7 @@ import { Quiz } from '../../models/quiz.model';
   selector: 'app-quizlist',
   standalone: true,
   templateUrl: './quizlist.component.html',
-  styleUrls: ['./quizlist.component.css'] // Upewnij się że plik istnieje
+  styleUrls: ['./quizlist.component.css']
 })
 export class QuizListComponent implements OnInit {
   quizzes: Quiz[] = [];
