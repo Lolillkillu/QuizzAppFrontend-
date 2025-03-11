@@ -1,0 +1,8 @@
+<h1>Lista Quizów</h1>
+<div *ngFor="let quiz of quizzes" class="quiz-card">
+  <h2>{{ quiz.title }}</h2>
+  <p *ngIf="quiz.description">{{ quiz.description }}</p>
+  <div class="meta-info">
+    <span>Autor: {{ quiz.author }}</span>
+  </div>
+</div>
