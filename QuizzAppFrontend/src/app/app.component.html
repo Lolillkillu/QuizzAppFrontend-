@@ -1,8 +1,13 @@
-<h1>Coś</h1>
+<div class="container">
+  <header>
+    <h1>Coś</h1>
+    <nav>
+      <a routerLink="/quizzes" routerLinkActive="active">Lista Quizów</a>
+      <a routerLink="/create-quiz" routerLinkActive="active">Stwórz Nowy Quiz</a>
+    </nav>
+  </header>
 
-<nav>
-  <a routerLink="/">Home</a>
-  <a routerLink="/quizzes">Quizzes</a>
-</nav>
-
-<router-outlet></router-outlet>
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+</div>
