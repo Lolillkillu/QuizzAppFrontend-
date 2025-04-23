@@ -26,5 +26,12 @@ export class QuizService {
     const url = `${this.apiUrl}/${quizId}/Question`;
     return this.http.post<Question>(url, { question: questionText });
   }
+
+  deleteQuiz(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
   
+getQuiz(id: number): Observable<Quiz> {
+  return this.http.get<Quiz>(`${this.apiUrl}/${id}`);
+}
 }

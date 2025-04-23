@@ -1,0 +1,38 @@
+.quiz-details {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+  
+  .questions {
+    margin-top: 2rem;
+  }
+  
+  .question {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+  
+  .answers {
+    margin-left: 1rem;
+  }
+  
+  .answer {
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+  }
+  
+  .loading, .error {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+  }
+  
+  .error {
+    color: #dc3545;
+  }

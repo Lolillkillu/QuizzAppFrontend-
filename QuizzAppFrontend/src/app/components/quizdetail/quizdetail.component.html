@@ -1,0 +1,23 @@
+<div *ngIf="isLoading" class="loading">
+    Ładowanie...
+  </div>
+  
+  <div *ngIf="error" class="error">
+    {{ error }}
+  </div>
+  
+  <div *ngIf="quiz" class="quiz-details">
+    <h1>{{ quiz.title }}</h1>
+    <p *ngIf="quiz.description">{{ quiz.description }}</p>
+    
+    <div class="questions">
+      <div *ngFor="let question of quiz.questions" class="question">
+        <h3>{{ question.question }}</h3>
+        <div class="answers">
+          <div *ngFor="let answer of question.answers" class="answer">
+            {{ answer.answer }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
