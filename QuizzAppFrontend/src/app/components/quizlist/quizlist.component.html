@@ -5,7 +5,9 @@
 </div>
 
 <div class="quiz-list">
-  <div *ngFor="let quiz of quizzes" class="quiz-card">
+  <div *ngFor="let quiz of quizzes" 
+  class="quiz-card">
+  [routerLink]="['/quizzes', quiz.quizId]">
     <h2>{{ quiz.title }}</h2>
     <p *ngIf="quiz.description">{{ quiz.description }}</p>
     <div class="meta-info">
