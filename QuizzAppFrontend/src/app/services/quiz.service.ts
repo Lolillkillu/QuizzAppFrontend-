@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Quiz } from '../models/quiz.model';
 import { CreateQuiz } from '../models/createquiz.model';
+import { Question } from '../models/question.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuizService {
@@ -20,4 +21,10 @@ export class QuizService {
   createQuiz(quizData: CreateQuiz): Observable<Quiz> {
     return this.http.post<Quiz>(this.apiUrl, quizData);
   }
+
+  addQuestionToQuiz(quizId: number, questionText: string): Observable<Question> {
+    const url = `${this.apiUrl}/${quizId}/Question`;
+    return this.http.post<Question>(url, { question: questionText });
+  }
+  
 }
