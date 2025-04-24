@@ -9,13 +9,17 @@
   <div *ngIf="quiz" class="quiz-details">
     <h1>{{ quiz.title }}</h1>
     <p *ngIf="quiz.description">{{ quiz.description }}</p>
-    
-    <div class="questions">
+    <p class="author">Autor: {{ quiz.author }}</p>
+  
+    <div class="questions-section">
+      <h2>Pytania</h2>
       <div *ngFor="let question of quiz.questions" class="question">
         <h3>{{ question.question }}</h3>
-        <div class="answers">
+        <div class="answers-section">
+          <h4>Odpowiedzi:</h4>
           <div *ngFor="let answer of question.answers" class="answer">
             {{ answer.answer }}
+            <span *ngIf="answer.isCorrect" class="correct-answer">✓</span>
           </div>
         </div>
       </div>

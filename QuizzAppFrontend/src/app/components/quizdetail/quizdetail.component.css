@@ -4,7 +4,13 @@
     padding: 1rem;
   }
   
-  .questions {
+  .author {
+    color: #666;
+    font-style: italic;
+    margin-bottom: 2rem;
+  }
+  
+  .questions-section {
     margin-top: 2rem;
   }
   
@@ -12,11 +18,17 @@
     background: #f8f9fa;
     padding: 1rem;
     border-radius: 8px;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
   }
   
-  .answers {
+  .answers-section {
     margin-left: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .answers-section h4 {
+    color: #444;
+    margin-bottom: 0.5rem;
   }
   
   .answer {
@@ -25,6 +37,14 @@
     background: #fff;
     border: 1px solid #dee2e6;
     border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .correct-answer {
+    color: #28a745;
+    font-weight: bold;
   }
   
   .loading, .error {
