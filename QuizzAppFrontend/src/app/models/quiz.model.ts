@@ -1,7 +1,7 @@
 import { Question } from './question.model';
 
 export interface Quiz {
-  quizId: number;
+  quizzId: number;
   title: string;
   description?: string;
   scienceId?: number;

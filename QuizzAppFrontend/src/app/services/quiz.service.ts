@@ -31,7 +31,7 @@ export class QuizService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
   
-getQuiz(id: number): Observable<Quiz> {
-  return this.http.get<Quiz>(`${this.apiUrl}/${id}`);
-}
+  getQuiz(id: number): Observable<Quiz> {
+    return this.http.get<Quiz>(`${this.apiUrl}/${id}`);
+  }
 }

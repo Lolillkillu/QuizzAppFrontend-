@@ -35,7 +35,7 @@ export class CreateQuizFormComponent {
     this.quizService.createQuiz(this.quizzData).subscribe({
       next: (createdQuiz: Quiz) => {
         this.successMessage = 'Quiz został pomyślnie utworzony';
-        this.createdQuizId = createdQuiz.quizId;
+        this.createdQuizId = createdQuiz.quizzId;
         this.quizzData = { Title: '', Author: '', Description: '' };
         this.isLoading = false;
       },

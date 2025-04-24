@@ -1,13 +1,8 @@
-<h1>Lista Quizów</h1>
-
-<div *ngIf="quizzes.length === 0" class="no-quizzes">
-  Brak quizów do wyświetlenia
-</div>
-
 <div class="quiz-list">
   <div *ngFor="let quiz of quizzes" 
-  class="quiz-card">
-  [routerLink]="['/quizzes', quiz.quizId]">
+       class="quiz-card" 
+       [routerLink]="['/quizzes', quiz.quizzId]"
+       @cardAnimation>
     <h2>{{ quiz.title }}</h2>
     <p *ngIf="quiz.description">{{ quiz.description }}</p>
     <div class="meta-info">
