@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { Quiz } from '../models/quiz.model';
 import { CreateQuiz } from '../models/createquiz.model';
 import { Question } from '../models/question.model';
+import { Answer } from '../models/answer.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuizService {
@@ -41,5 +42,9 @@ export class QuizService {
         })) || []
       }))
     );
+  }
+
+  addAnswersToQuestion(questionId: number, answers: Partial<Answer>[]): Observable<any> {
+    return this.http.post(`${this.apiUrl}/questions/${questionId}/answers`, answers);
   }
 }
