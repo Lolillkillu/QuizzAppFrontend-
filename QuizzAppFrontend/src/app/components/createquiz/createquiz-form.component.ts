@@ -16,7 +16,6 @@ import { Answer } from '../../models/answer.model';
 export class CreateQuizFormComponent {
   currentStep: number = 1;
   
-  // Reszta kodu pozostaje bez zmian
   quizzData: CreateQuiz = {
     Title: '',
     Author: '',
