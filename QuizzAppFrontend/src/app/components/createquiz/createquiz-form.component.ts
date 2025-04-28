@@ -82,14 +82,23 @@ export class CreateQuizFormComponent {
       this.errorMessage = 'Wymagane minimum 4 odpowiedzi z przynajmniej jedną poprawną';
       return;
     }
-
+  
     this.isLoading = true;
-    this.quizService.addAnswersToQuestion(this.createdQuestionId, this.answers)
+    
+    const answersToSend = this.answers.map(a => ({
+      answer: a.answer,
+      isCorrect: a.isCorrect
+    }));
+  
+    this.quizService.addAnswersToQuestion(this.createdQuestionId, answersToSend)
       .subscribe({
         next: () => {
           this.router.navigate(['/quizzes', this.createdQuizId]);
         },
-        error: (err) => this.handleError('Błąd zapisywania odpowiedzi')
+        error: (err) => {
+          this.errorMessage = 'Błąd zapisywania odpowiedzi: ' + err.message;
+          this.isLoading = false;
+        }
       });
   }
 

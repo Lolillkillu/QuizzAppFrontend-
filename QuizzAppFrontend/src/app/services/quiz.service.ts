@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Quiz } from '../models/quiz.model';
 import { CreateQuiz } from '../models/createquiz.model';
@@ -45,6 +45,15 @@ export class QuizService {
   }
 
   addAnswersToQuestion(questionId: number, answers: Partial<Answer>[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/questions/${questionId}/answers`, answers);
+    const url = `${this.apiUrl}/Question/${questionId}/Answer`;
+
+    const requests = answers.map(answer => 
+      this.http.post<Answer>(url, {
+        answer: answer.answer,
+        isCorrect: answer.isCorrect
+      })
+    );
+    
+    return forkJoin(requests);
   }
 }
