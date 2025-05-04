@@ -101,7 +101,30 @@
     border-radius: 8px;
     border: 1px solid #ffcdd2;
   }
+
+  .question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
   
+  .edit-icon {
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+  }
+  
+  .edit-icon:hover {
+    color: #2196F3;
+  }
+  
+  .answer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
   @keyframes fadeInOut {
     0% { opacity: 0.6; }
     50% { opacity: 1; }

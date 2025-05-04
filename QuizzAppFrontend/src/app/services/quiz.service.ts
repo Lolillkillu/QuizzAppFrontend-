@@ -56,4 +56,12 @@ export class QuizService {
     
     return forkJoin(requests);
   }
+
+  updateQuestion(questionId: number, question: Question): Observable<any> {
+    return this.http.put(`${this.apiUrl}/Question/${questionId}`, question);
+  }
+
+updateAnswer(answerId: number, answer: Answer): Observable<any> {
+  return this.http.put(`${this.apiUrl}/Answer/${answerId}`, answer);
+}
 }

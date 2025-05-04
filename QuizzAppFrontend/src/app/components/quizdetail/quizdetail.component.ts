@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { QuizService } from '../../services/quiz.service';
 import { Quiz } from '../../models/quiz.model';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-quiz-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './quizdetail.component.html',
   styleUrls: ['./quizdetail.component.css'],
   animations: [
