@@ -10,7 +10,6 @@
           rows="4"
         ></textarea>
         
-        <!-- Sekcja błędów zaktualizowana -->
         <div *ngIf="questionForm.get('questionText')?.invalid && questionForm.get('questionText')?.touched" 
              class="error-message">
           <div *ngIf="questionForm.get('questionText')?.hasError('required')">
