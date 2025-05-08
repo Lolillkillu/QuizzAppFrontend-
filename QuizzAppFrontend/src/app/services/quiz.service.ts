@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Quiz } from '../models/quiz.model';
+import { QuestionWithAnswers, Quiz } from '../models/quiz.model';
 import { CreateQuiz } from '../models/createquiz.model';
 import { Question } from '../models/question.model';
 import { Answer } from '../models/answer.model';
@@ -71,5 +71,9 @@ deleteAnswer(answerId: number): Observable<void> {
 
 deleteQuestion(questionId: number): Observable<void> {
   return this.http.delete<void>(`${this.apiUrl}/Question/${questionId}`);
+}
+
+getRandomQuestion(quizId: number): Observable<QuestionWithAnswers> {
+  return this.http.get<QuestionWithAnswers>(`${this.apiUrl}/GetRandomQuestion/${quizId}`);
 }
 }

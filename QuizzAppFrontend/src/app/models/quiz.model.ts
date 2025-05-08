@@ -8,3 +8,15 @@ export interface Quiz {
   author: string;
   questions: Question[];
 }
+
+export interface QuestionWithAnswers {
+  questionId: number;
+  questionText: string;
+  answers: AnswerDto[];
+}
+
+export interface AnswerDto {
+  answerId: number;
+  answerText: string;
+  isCorrect: boolean;
+}

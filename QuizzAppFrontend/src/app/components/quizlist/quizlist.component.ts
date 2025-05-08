@@ -4,7 +4,7 @@ import { Quiz } from '../../models/quiz.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
@@ -26,7 +26,10 @@ export class QuizListComponent implements OnInit {
   quizzes: Quiz[] = [];
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
-  constructor(private quizService: QuizService) {}
+  constructor(
+    private quizService: QuizService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.quizService.getQuizzes()
@@ -43,5 +46,9 @@ export class QuizListComponent implements OnInit {
   ngOnDestroy() {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+  }
+
+  navigateToGame(quizId: number): void {
+    this.router.navigate(['/quiz', quizId, 'play']);
   }
 }

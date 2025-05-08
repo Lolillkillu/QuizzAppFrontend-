@@ -9,6 +9,7 @@ import { EditQuestionComponent } from './components/editquestion/editquestion.co
 import { EditAnswerComponent } from './components/editanswer/editanswer.component';
 import { AddNewAnswerComponent } from './components/addnewanswer/addnewanswer.component';
 import { AddnewquestionComponent } from './components/addnewquestion/addnewquestion.component';
+import { QuizGameComponent } from './components/quizgame/quizgame.component';
 
 const routes: Routes = [
   { path: 'quizzes', component: QuizListComponent },
@@ -19,7 +20,8 @@ const routes: Routes = [
   { path: 'quizzes/:quizId/editquestion/:questionId', component: EditQuestionComponent },
   { path: 'quizzes/:quizId/questions/:questionId/answers/:answerId/edit', component: EditAnswerComponent },
   { path: 'quizzes/:quizId/questions/:questionId/add-answer', component: AddNewAnswerComponent },
-  { path: 'quizzes/:quizId/add-question', component: AddnewquestionComponent }
+  { path: 'quizzes/:quizId/add-question', component: AddnewquestionComponent },
+  { path: 'quiz/:quizzId/play', component: QuizGameComponent }
 ];
 
 @NgModule({
