@@ -7,6 +7,8 @@ import { DeleteQuizComponent } from './components/deletequiz/deletequiz.componen
 import { QuizDetailComponent } from './components/quizdetail/quizdetail.component';
 import { EditQuestionComponent } from './components/editquestion/editquestion.component';
 import { EditAnswerComponent } from './components/editanswer/editanswer.component';
+import { AddNewAnswerComponent } from './components/addnewanswer/addnewanswer.component';
+import { AddnewquestionComponent } from './components/addnewquestion/addnewquestion.component';
 
 const routes: Routes = [
   { path: 'quizzes', component: QuizListComponent },
@@ -15,7 +17,9 @@ const routes: Routes = [
   { path: 'delete-quiz', component: DeleteQuizComponent },
   { path: 'quizzes/:id', component: QuizDetailComponent },
   { path: 'quizzes/:quizId/editquestion/:questionId', component: EditQuestionComponent },
-  { path: 'quizzes/:quizId/questions/:questionId/answers/:answerId/edit', component: EditAnswerComponent }
+  { path: 'quizzes/:quizId/questions/:questionId/answers/:answerId/edit', component: EditAnswerComponent },
+  { path: 'quizzes/:quizId/questions/:questionId/add-answer', component: AddNewAnswerComponent },
+  { path: 'quizzes/:quizId/add-question', component: AddnewquestionComponent }
 ];
 
 @NgModule({

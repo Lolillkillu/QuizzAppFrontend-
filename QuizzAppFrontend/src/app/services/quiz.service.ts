@@ -64,4 +64,12 @@ export class QuizService {
 updateAnswer(answerId: number, answer: Answer): Observable<any> {
   return this.http.put(`${this.apiUrl}/Answer/${answerId}`, answer);
 }
+
+deleteAnswer(answerId: number): Observable<void> {
+  return this.http.delete<void>(`${this.apiUrl}/Answer/${answerId}`);
+}
+
+deleteQuestion(questionId: number): Observable<void> {
+  return this.http.delete<void>(`${this.apiUrl}/Question/${questionId}`);
+}
 }
