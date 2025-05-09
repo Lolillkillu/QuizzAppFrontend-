@@ -1,29 +1,33 @@
 <div class="quiz-game-container">
-    <button class="back-button" (click)="backToQuizzes()">← Powrót do listy quizów</button>
-    
-    <div *ngIf="isLoading" class="loading">Ładowanie pytania...</div>
-    
-    <div *ngIf="error" class="error-message">
-      {{ error }}
-      <button (click)="backToQuizzes()">Wybierz inny quiz</button>
-    </div>
-  
-    <div *ngIf="question && !isLoading" class="question-container">
+    <div *ngIf="question">
       <h2>{{ question.questionText }}</h2>
       
       <div class="answers-grid">
-        <button 
-          *ngFor="let answer of question.answers"
-          [class.correct]="selectedAnswerId && answer.isCorrect"
-          [class.incorrect]="selectedAnswerId === answer.answerId && !answer.isCorrect"
-          [disabled]="!!selectedAnswerId"
-          (click)="checkAnswer(answer.answerId, answer.isCorrect)">
+        <div *ngFor="let answer of question.answers.$values" 
+             class="answer-card"
+             [class.selected]="answer === selectedAnswer"
+             [class.correct]="isAnswerSelected && answer.isCorrect"
+             [class.incorrect]="isAnswerSelected && !answer.isCorrect && answer === selectedAnswer"
+             (click)="selectAnswer(answer)">
           {{ answer.answerText }}
-        </button>
+        </div>
       </div>
   
-      <div *ngIf="message" class="result-message" [class.success]="isCorrect" [class.error]="!isCorrect">
-        {{ message }}
+      <div *ngIf="isAnswerSelected" class="result-message">
+        <div *ngIf="selectedAnswer?.isCorrect" class="correct-message">
+          ✔ Poprawna odpowiedź!
+        </div>
+        <div *ngIf="!selectedAnswer?.isCorrect" class="incorrect-message">
+          ✖ Błędna odpowiedź. Spróbuj ponownie!
+        </div>
+        
+        <button class="next-button" (click)="loadQuestion()">
+          Następne pytanie
+        </button>
       </div>
+    </div>
+  
+    <div *ngIf="!question" class="loading">
+      Ładowanie pytania...
     </div>
   </div>

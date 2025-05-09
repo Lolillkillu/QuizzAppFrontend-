@@ -10,12 +10,17 @@ export interface Quiz {
 }
 
 export interface QuestionWithAnswers {
+  $id: string;
   questionId: number;
   questionText: string;
-  answers: AnswerDto[];
+  answers: {
+    $id: string;
+    $values: AnswerDto[];
+  };
 }
 
 export interface AnswerDto {
+  $id: string;
   answerId: number;
   answerText: string;
   isCorrect: boolean;

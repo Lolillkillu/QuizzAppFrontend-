@@ -1,12 +1,12 @@
 <div class="quiz-list">
   <div *ngFor="let quiz of quizzes" class="quiz-card" @cardAnimation>
-    <div class="content" [routerLink]="['/quizzes', quiz.quizzId]">
+    <div class="quiz-content" [routerLink]="['/quizzes', quiz.quizzId]">
       <h2>{{ quiz.title }}</h2>
       <p *ngIf="quiz.description">{{ quiz.description }}</p>
       <div class="meta-info">
         <span>Autor: {{ quiz.author }}</span>
       </div>
     </div>
-    <button class="play-button" (click)="navigateToGame(quiz.quizzId)">Graj</button>
+    <button class="play-button" [routerLink]="['/quiz-game', quiz.quizzId]">Graj</button>
   </div>
 </div>

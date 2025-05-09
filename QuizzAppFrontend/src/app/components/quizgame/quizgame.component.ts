@@ -1,69 +1,91 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { QuizService } from '../../services/quiz.service';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
-import { QuestionWithAnswers } from '../../models/quiz.model';
+import { map } from 'rxjs/operators';
+
+interface AnswerDto {
+  $id: string;
+  answerId: number;
+  answerText: string;
+  isCorrect: boolean;
+}
+
+interface QuestionWithAnswers {
+  $id: string;
+  questionId: number;
+  questionText: string;
+  answers: {
+    $id: string;
+    $values: AnswerDto[];
+  };
+}
 
 @Component({
   selector: 'app-quiz-game',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, RouterModule],
+  imports: [CommonModule, HttpClientModule],
   templateUrl: './quizgame.component.html',
   styleUrls: ['./quizgame.component.css']
 })
 export class QuizGameComponent implements OnInit {
-  question?: QuestionWithAnswers;
-  selectedAnswerId?: number;
-  message?: string;
-  isCorrect?: boolean;
-  isLoading = true;
-  error?: string;
+  question: QuestionWithAnswers | null = null;
+  selectedAnswer: AnswerDto | null = null;
+  isAnswerSelected = false;
+  quizId!: number;
 
   constructor(
-    private route: ActivatedRoute,
     private quizService: QuizService,
-    private router: Router
+    private route: ActivatedRoute
   ) {}
 
-  ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      this.loadQuestion(params['quizzId']);
-    });
+  ngOnInit() {
+    this.quizId = Number(this.route.snapshot.paramMap.get('quizId'));
+    this.loadQuestion();
   }
 
-  loadQuestion(quizId: number): void {
-    this.isLoading = true;
-    this.error = undefined;
-    this.quizService.getRandomQuestion(quizId).subscribe({
-      next: (question) => {
-        this.question = question;
-        this.isLoading = false;
+  loadQuestion() {
+    this.quizService.getRandomQuestion(this.quizId).subscribe({
+      next: (response: any) => {
+        this.question = this.mapResponseToQuestion(response);
+        this.resetState();
       },
-      error: (err) => {
-        this.error = err.error || 'Wystąpił błąd';
-        this.isLoading = false;
-      }
+      error: (err) => console.error('Error:', err)
     });
   }
 
-  checkAnswer(answerId: number, isCorrect: boolean): void {
-    if (this.selectedAnswerId) return;
-    
-    this.selectedAnswerId = answerId;
-    this.isCorrect = isCorrect;
-    this.message = isCorrect ? 'Poprawna odpowiedź! 🎉' : 'Niestety to błędna odpowiedź 😞';
+  private mapResponseToQuestion(response: any): QuestionWithAnswers {
+    return {
+      $id: response.$id,
+      questionId: response.questionId,
+      questionText: response.questionText,
+      answers: {
+        $id: response.answers.$id,
+        $values: response.answers.$values.map((a: any) => ({
+          $id: a.$id,
+          answerId: a.answerId,
+          answerText: a.answerText,
+          isCorrect: a.isCorrect
+        }))
+      }
+    };
+  }
 
-    if (isCorrect) {
-      setTimeout(() => {
-        this.loadQuestion(this.route.snapshot.params['quizzId']);
-        this.selectedAnswerId = undefined;
-      }, 2000);
+  selectAnswer(answer: AnswerDto) {
+    if (!this.isAnswerSelected) {
+      this.selectedAnswer = answer;
+      this.isAnswerSelected = true;
     }
   }
 
-  backToQuizzes(): void {
-    this.router.navigate(['/quizzes']);
+  resetState() {
+    this.selectedAnswer = null;
+    this.isAnswerSelected = false;
+  }
+
+  get answerStatusClass() {
+    if (!this.selectedAnswer) return '';
+    return this.selectedAnswer.isCorrect ? 'correct' : 'incorrect';
   }
 }

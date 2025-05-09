@@ -74,6 +74,21 @@ deleteQuestion(questionId: number): Observable<void> {
 }
 
 getRandomQuestion(quizId: number): Observable<QuestionWithAnswers> {
-  return this.http.get<QuestionWithAnswers>(`${this.apiUrl}/GetRandomQuestion/${quizId}`);
+  return this.http.get<any>(`${this.apiUrl}/GetRandomQuestion/${quizId}`).pipe(
+    map(response => ({
+      $id: response.$id,
+      questionId: response.questionId,
+      questionText: response.questionText,
+      answers: {
+        $id: response.answers.$id,
+        $values: response.answers.$values.map((a: any) => ({
+          $id: a.$id,
+          answerId: a.answerId,
+          answerText: a.answerText,
+          isCorrect: a.isCorrect
+        }))
+      }
+    }))
+  );
 }
 }
