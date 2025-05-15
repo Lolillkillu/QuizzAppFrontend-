@@ -35,6 +35,8 @@ export class QuizGameComponent implements OnInit {
   isAnswerSelected = false;
   quizId!: number;
   quizFinished = false;
+  questionStatuses: Array<'unanswered' | 'correct' | 'incorrect'> = [];
+  currentScore: number = 0
 
   constructor(
     private quizService: QuizService,
@@ -46,15 +48,16 @@ export class QuizGameComponent implements OnInit {
     this.loadQuestions();
   }
 
-  loadQuestions() {
-    this.quizService.getRandomQuestions(this.quizId).subscribe({
-      next: (response: any) => {
-        this.questions = response.$values.map((q: any) => this.mapQuestion(q));
-        this.resetState();
-      },
-      error: (err) => console.error('Error:', err)
-    });
-  }
+loadQuestions() {
+  this.quizService.getRandomQuestions(this.quizId).subscribe({
+    next: (response: any) => {
+      this.questions = response.$values.map((q: any) => this.mapQuestion(q));
+      this.questionStatuses = new Array(this.questions.length).fill('unanswered');
+      this.resetState();
+    },
+    error: (err) => console.error('Error:', err)
+  });
+}
 
   private mapQuestion(question: any): QuestionWithAnswers {
     return {
@@ -74,11 +77,16 @@ export class QuizGameComponent implements OnInit {
   }
 
   selectAnswer(answer: AnswerDto) {
-    if (!this.isAnswerSelected) {
-      this.selectedAnswer = answer;
-      this.isAnswerSelected = true;
-    }
+  if (!this.isAnswerSelected) {
+    this.selectedAnswer = answer;
+    this.isAnswerSelected = true;
+
+    const newStatus = answer.isCorrect ? 'correct' : 'incorrect';
+    this.questionStatuses[this.currentQuestionIndex] = newStatus;
+
+    if (newStatus === 'correct') this.currentScore++;
   }
+}
 
   nextQuestion() {
     if (this.currentQuestionIndex < this.questions.length - 1) {
@@ -98,4 +106,19 @@ export class QuizGameComponent implements OnInit {
     if (!this.selectedAnswer) return '';
     return this.selectedAnswer.isCorrect ? 'correct' : 'incorrect';
   }
+
+  getResultClass(): string {
+  const percentage = (this.currentScore / this.questions.length) * 100;
+  if (percentage >= 80) return 'good';
+  if (percentage >= 50) return 'average';
+  return 'poor';
+}
+
+getResultText(): string {
+  const percentage = (this.currentScore / this.questions.length) * 100;
+  if (percentage >= 90) return 'Gratulację';
+  if (percentage >= 70) return 'Nawet dobrze.';
+  if (percentage >= 50) return 'Może być...';
+  return 'No... Tak średnio';
+}
 }
