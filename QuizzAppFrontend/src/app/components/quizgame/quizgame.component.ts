@@ -3,7 +3,6 @@ import { QuizService } from '../../services/quiz.service';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { map } from 'rxjs/operators';
 
 interface AnswerDto {
   $id: string;
@@ -30,10 +29,12 @@ interface QuestionWithAnswers {
   styleUrls: ['./quizgame.component.css']
 })
 export class QuizGameComponent implements OnInit {
-  question: QuestionWithAnswers | null = null;
+  questions: QuestionWithAnswers[] = [];
+  currentQuestionIndex: number = 0;
   selectedAnswer: AnswerDto | null = null;
   isAnswerSelected = false;
   quizId!: number;
+  quizFinished = false;
 
   constructor(
     private quizService: QuizService,
@@ -42,27 +43,27 @@ export class QuizGameComponent implements OnInit {
 
   ngOnInit() {
     this.quizId = Number(this.route.snapshot.paramMap.get('quizId'));
-    this.loadQuestion();
+    this.loadQuestions();
   }
 
-  loadQuestion() {
-    this.quizService.getRandomQuestion(this.quizId).subscribe({
+  loadQuestions() {
+    this.quizService.getRandomQuestions(this.quizId).subscribe({
       next: (response: any) => {
-        this.question = this.mapResponseToQuestion(response);
+        this.questions = response.$values.map((q: any) => this.mapQuestion(q));
         this.resetState();
       },
       error: (err) => console.error('Error:', err)
     });
   }
 
-  private mapResponseToQuestion(response: any): QuestionWithAnswers {
+  private mapQuestion(question: any): QuestionWithAnswers {
     return {
-      $id: response.$id,
-      questionId: response.questionId,
-      questionText: response.questionText,
+      $id: question.$id,
+      questionId: question.questionId,
+      questionText: question.questionText,
       answers: {
-        $id: response.answers.$id,
-        $values: response.answers.$values.map((a: any) => ({
+        $id: question.answers.$id,
+        $values: question.answers.$values.map((a: any) => ({
           $id: a.$id,
           answerId: a.answerId,
           answerText: a.answerText,
@@ -76,6 +77,15 @@ export class QuizGameComponent implements OnInit {
     if (!this.isAnswerSelected) {
       this.selectedAnswer = answer;
       this.isAnswerSelected = true;
+    }
+  }
+
+  nextQuestion() {
+    if (this.currentQuestionIndex < this.questions.length - 1) {
+      this.currentQuestionIndex++;
+      this.resetState();
+    } else {
+      this.quizFinished = true;
     }
   }
 

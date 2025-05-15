@@ -1,33 +1,39 @@
 <div class="quiz-game-container">
-    <div *ngIf="question">
-      <h2>{{ question.questionText }}</h2>
-      
-      <div class="answers-grid">
-        <div *ngFor="let answer of question.answers.$values" 
-             class="answer-card"
-             [class.selected]="answer === selectedAnswer"
-             [class.correct]="isAnswerSelected && answer.isCorrect"
-             [class.incorrect]="isAnswerSelected && !answer.isCorrect && answer === selectedAnswer"
-             (click)="selectAnswer(answer)">
-          {{ answer.answerText }}
-        </div>
-      </div>
-  
-      <div *ngIf="isAnswerSelected" class="result-message">
-        <div *ngIf="selectedAnswer?.isCorrect" class="correct-message">
-          ✔ Poprawna odpowiedź!
-        </div>
-        <div *ngIf="!selectedAnswer?.isCorrect" class="incorrect-message">
-          ✖ Błędna odpowiedź. Spróbuj ponownie!
-        </div>
-        
-        <button class="next-button" (click)="loadQuestion()">
-          Następne pytanie
-        </button>
+  <div *ngIf="questions.length > 0 && !quizFinished">
+    <h2>Pytanie {{ currentQuestionIndex + 1 }} z {{ questions.length }}</h2>
+    <h3>{{ questions[currentQuestionIndex].questionText }}</h3>
+    
+    <div class="answers-grid">
+      <div *ngFor="let answer of questions[currentQuestionIndex].answers.$values" 
+           class="answer-card"
+           [class.selected]="answer === selectedAnswer"
+           [class.correct]="isAnswerSelected && answer.isCorrect"
+           [class.incorrect]="isAnswerSelected && !answer.isCorrect && answer === selectedAnswer"
+           (click)="selectAnswer(answer)">
+        {{ answer.answerText }}
       </div>
     </div>
-  
-    <div *ngIf="!question" class="loading">
-      Ładowanie pytania...
+
+    <div *ngIf="isAnswerSelected" class="result-message">
+      <div *ngIf="selectedAnswer?.isCorrect" class="correct-message">
+        ✔ Dobrzeee
+      </div>
+      <div *ngIf="!selectedAnswer?.isCorrect" class="incorrect-message">
+        ✖ Zła odpowiedź
+      </div>
+      
+      <button class="next-button" (click)="nextQuestion()">
+        {{ currentQuestionIndex < questions.length - 1 ? 'Następne pytanie' : 'Zakończ quiz' }}
+      </button>
     </div>
   </div>
+
+  <div *ngIf="quizFinished" class="quiz-summary">
+    <h2>Koniec</h2>
+    <p>Gratulacje!!!</p>
+  </div>
+
+  <div *ngIf="!questions.length && !quizFinished" class="loading">
+    Ładowanie pytań... Poczekaj chwileczkę 
+  </div>
+</div>
