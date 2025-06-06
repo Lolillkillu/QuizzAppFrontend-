@@ -37,6 +37,7 @@ export class QuizGameComponent implements OnInit {
   quizFinished = false;
   questionStatuses: Array<'unanswered' | 'correct' | 'incorrect'> = [];
   currentScore: number = 0
+  showModeSelection = true;
 
   constructor(
     private quizService: QuizService,
@@ -45,7 +46,24 @@ export class QuizGameComponent implements OnInit {
 
   ngOnInit() {
     this.quizId = Number(this.route.snapshot.paramMap.get('quizId'));
+  }
+
+  startSoloGame() {
+    this.showModeSelection = false;
     this.loadQuestions();
+  }
+
+  startMultiplayer() {
+    //TODO
+  }
+
+  restartQuiz() {
+    this.showModeSelection = true;
+    this.quizFinished = false;
+    this.currentScore = 0;
+    this.currentQuestionIndex = 0;
+    this.questions = [];
+    this.questionStatuses = [];
   }
 
 loadQuestions() {

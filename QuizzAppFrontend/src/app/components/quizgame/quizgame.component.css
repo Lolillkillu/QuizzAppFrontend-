@@ -1,8 +1,9 @@
 .quiz-game-container {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 2rem;
-  }
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 2rem;
+  min-height: 80vh;
+}
   
   .answers-grid {
     display: grid;
@@ -95,4 +96,41 @@
 
 .progress-item.incorrect {
   background: #f44336 !important;
+}
+
+.mode-selection {
+  text-align: center;
+  padding: 2rem;
+  margin-top: 3rem;
+}
+
+.mode-buttons {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.mode-button {
+  padding: 1.5rem 3rem;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mode-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.mode-button.solo {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.mode-button.multi {
+  background-color: #2196F3;
+  color: white;
 }

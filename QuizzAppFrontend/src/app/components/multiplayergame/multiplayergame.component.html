@@ -1,0 +1,51 @@
+<div class="multiplayer-container">
+  <div *ngIf="showNameInput" class="name-input">
+    <h2>Podaj swoje imię</h2>
+    <input #playerNameInput type="text" placeholder="Twoje imię" />
+    <button (click)="submitPlayerName(playerNameInput.value)">Dalej</button>
+  </div>
+
+  <div *ngIf="!showNameInput">
+    <div *ngIf="gameStatus === 'waiting'">
+      <h2>Oczekiwanie na graczy</h2>
+      <p>ID gry: {{ gameId }}</p>
+      <div class="players-list">
+        <div *ngFor="let player of players" class="player-card">
+          {{ player.name }}
+        </div>
+      </div>
+      <p>Status połączenia: {{ connectionStatus }}</p>
+    </div>
+
+    <div *ngIf="gameStatus === 'in-progress'">
+      <div class="game-info">
+        <div>Twoje punkty: {{ currentScore }}</div>
+        <div>Gracze online: {{ players.length }}</div>
+      </div>
+
+      <h2>{{ currentQuestion?.questionText }}</h2>
+      
+      <div class="answers-grid">
+        <div 
+          *ngFor="let answer of currentQuestion?.answers.$values" 
+          class="answer-card"
+          [class.selected]="answer === selectedAnswer"
+          (click)="selectAnswer(answer)"
+        >
+          {{ answer.answerText }}
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="gameStatus === 'completed'">
+      <h2>Gra zakończona!</h2>
+      <div class="results">
+        <div *ngFor="let player of players" class="player-result">
+          <span>{{ player.name }}:</span>
+          <span>{{ player.score }} punktów</span>
+        </div>
+      </div>
+      <button (click)="restartGame()">Zagraj ponownie</button>
+    </div>
+  </div>
+</div>
