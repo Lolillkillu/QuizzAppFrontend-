@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { QuizService } from '../../services/quiz.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -41,7 +41,8 @@ export class QuizGameComponent implements OnInit {
 
   constructor(
     private quizService: QuizService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -54,7 +55,9 @@ export class QuizGameComponent implements OnInit {
   }
 
   startMultiplayer() {
-    //TODO
+    this.router.navigate(['/multiplayer'], { 
+      queryParams: { quizId: this.quizId } 
+    });
   }
 
   restartQuiz() {

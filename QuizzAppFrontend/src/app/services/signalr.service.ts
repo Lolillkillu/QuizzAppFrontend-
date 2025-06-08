@@ -61,11 +61,15 @@ export class SignalrService {
     this.hubConnection.on('GameError', (error: string) => {
       this.gameError$.next(error);
     });
+
+    this.hubConnection.on('GameCreated', (gameId: string, quizId: number) => {
+      this.gameCreated$.next(gameId);
+    });
   }
 
-  public createGame(playerName: string): Promise<string> {
-    return this.hubConnection.invoke('CreateGame', playerName);
-  }
+  public createGame(playerName: string, quizId: number): Promise<string> {
+  return this.hubConnection.invoke('CreateGame', playerName, quizId);
+}
 
   public joinGame(gameId: string, playerName: string): Promise<boolean> {
     return this.hubConnection.invoke('JoinGame', gameId, playerName);

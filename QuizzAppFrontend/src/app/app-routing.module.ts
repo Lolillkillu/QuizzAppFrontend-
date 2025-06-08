@@ -24,7 +24,8 @@ const routes: Routes = [
   { path: 'quizzes/:quizId/add-question', component: AddnewquestionComponent },
   { path: 'quiz-game/:quizId', component: QuizGameComponent },
   { path: 'multiplayer/:gameId', component: MultiplayerGameComponent },
-  { path: 'multiplayer', component: MultiplayerGameComponent }
+  { path: 'multiplayer', component: MultiplayerGameComponent },
+  { path: 'quiz-game/:quizId/multiplayer', component: MultiplayerGameComponent }
 ];
 
 @NgModule({

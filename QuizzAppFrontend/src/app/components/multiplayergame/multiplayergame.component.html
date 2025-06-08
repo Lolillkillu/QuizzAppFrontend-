@@ -8,7 +8,11 @@
   <div *ngIf="!showNameInput">
     <div *ngIf="gameStatus === 'waiting'">
       <h2>Oczekiwanie na graczy</h2>
-      <p>ID gry: {{ gameId }}</p>
+      <div class="game-id-container">
+        <p>ID gry: {{ gameId }}</p>
+        <button class="copy-button" (click)="copyGameId()">Kopiuj link</button>
+      </div>
+      <p>Udostępnij ten link drugiemu graczowi</p>
       <div class="players-list">
         <div *ngFor="let player of players" class="player-card">
           {{ player.name }}
@@ -30,9 +34,20 @@
           *ngFor="let answer of currentQuestion?.answers.$values" 
           class="answer-card"
           [class.selected]="answer === selectedAnswer"
+          [class.correct]="isAnswerSelected && answer.isCorrect"
+          [class.incorrect]="isAnswerSelected && !answer.isCorrect && answer === selectedAnswer"
           (click)="selectAnswer(answer)"
         >
           {{ answer.answerText }}
+        </div>
+      </div>
+      
+      <div *ngIf="isAnswerSelected" class="feedback-message">
+        <div *ngIf="selectedAnswer?.isCorrect" class="correct-feedback">
+          Poprawna odpowiedź!
+        </div>
+        <div *ngIf="!selectedAnswer?.isCorrect" class="incorrect-feedback">
+          Niestety, to nie jest poprawna odpowiedź
         </div>
       </div>
     </div>
@@ -40,12 +55,14 @@
     <div *ngIf="gameStatus === 'completed'">
       <h2>Gra zakończona!</h2>
       <div class="results">
-        <div *ngFor="let player of players" class="player-result">
-          <span>{{ player.name }}:</span>
-          <span>{{ player.score }} punktów</span>
+        <h3>Ranking graczy:</h3>
+        <div *ngFor="let player of players; let i = index" class="player-result">
+          <span class="player-position">#{{i + 1}}</span>
+          <span class="player-name">{{ player.name }}</span>
+          <span class="player-score">{{ player.score }} punktów</span>
         </div>
       </div>
-      <button (click)="restartGame()">Zagraj ponownie</button>
+      <button class="restart-button" (click)="restartGame()">Zagraj ponownie</button>
     </div>
   </div>
 </div>

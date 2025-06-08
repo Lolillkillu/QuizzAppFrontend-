@@ -36,13 +36,11 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.quizId = Number(this.route.snapshot.paramMap.get('quizId'));
-    
-    this.subscriptions.push(
-      this.signalrService.connectionStatus$.subscribe(status => {
-        this.connectionStatus = status;
-      })
-    );
+    this.route.queryParams.subscribe(params => {
+      if (params['quizId']) {
+        this.quizId = Number(params['quizId']);
+      }
+    });
 
     if (this.route.snapshot.paramMap.get('gameId')) {
       this.gameId = this.route.snapshot.paramMap.get('gameId');
@@ -55,7 +53,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   submitPlayerName(playerName: string) {
     this.playerName = playerName;
     this.showNameInput = false;
-    
+
     if (this.gameId) {
       this.signalrService.joinGame(this.gameId, playerName)
         .then(success => {
@@ -65,10 +63,12 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
           }
         });
     } else if (this.quizId) {
-      this.signalrService.createGame(playerName)
+      this.signalrService.createGame(playerName, this.quizId)
         .then(gameId => {
           this.gameId = gameId;
-          this.router.navigate(['/multiplayer', gameId]);
+          this.router.navigate(['/multiplayer', gameId], {
+            queryParamsHandling: 'preserve'
+          });
         })
         .catch(err => {
           console.error('Błąd tworzenia gry:', err);
@@ -81,27 +81,26 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
         this.players = players;
         this.playerId = players.find(p => p.name === this.playerName)?.playerId;
       }),
-      
+
       this.signalrService.nextQuestion$.subscribe(question => {
         this.currentQuestion = question;
         this.gameStatus = 'in-progress';
         this.selectedAnswer = null;
         this.isAnswerSelected = false;
       }),
-      
+
       this.signalrService.answerProcessed$.subscribe(result => {
         if (result.playerId === this.playerId && result.isCorrect) {
           this.currentScore++;
         }
       }),
-      
+
       this.signalrService.gameCompleted$.subscribe(results => {
         this.gameStatus = 'completed';
-      }),
-      
-      this.signalrService.gameError$.subscribe(error => {
-        alert(`Błąd gry: ${error}`);
-        this.router.navigate(['/']);
+        this.players = results.map((r: any) => ({
+          name: r.playerName,
+          score: r.score
+        }));
       })
     );
   }
@@ -119,7 +118,18 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   }
 
   restartGame() {
-    this.router.navigate(['/quiz-game', this.quizId]);
+    if (this.quizId) {
+      this.router.navigate(['/quiz-game', this.quizId]);
+    } else {
+      this.router.navigate(['/']);
+    }
+  }
+
+  copyGameId() {
+    const url = `${window.location.origin}/multiplayer/${this.gameId}`;
+    navigator.clipboard.writeText(url)
+      .then(() => alert('Link skopiowany do schowka!'))
+      .catch(err => console.error('Błąd kopiowania:', err));
   }
 
   ngOnDestroy(): void {
