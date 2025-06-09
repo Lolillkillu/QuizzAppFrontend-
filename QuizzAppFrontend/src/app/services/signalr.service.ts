@@ -13,11 +13,12 @@ export class SignalrService {
   public answerProcessed$ = new Subject<{playerId: string, isCorrect: boolean}>();
   public gameCompleted$ = new Subject<any[]>();
   public gameError$ = new Subject<string>();
+  public quizIdSet$ = new Subject<void>();
 
   constructor() {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl('https://localhost:7039/gamehub')
-      .configureLogging(signalR.LogLevel.Information)
+      .configureLogging(signalR.LogLevel.Debug)
       .build();
 
     this.startConnection();
@@ -25,7 +26,6 @@ export class SignalrService {
   }
 
   private startConnection(): void {
-    this.connectionStatus$.next('connecting');
     this.hubConnection.start()
       .then(() => {
         console.log('Połączono z hubem');
@@ -36,6 +36,11 @@ export class SignalrService {
         this.connectionStatus$.next('disconnected');
         setTimeout(() => this.startConnection(), 5000);
       });
+
+    this.hubConnection.onclose(() => {
+      this.connectionStatus$.next('disconnected');
+      setTimeout(() => this.startConnection(), 5000);
+    });
   }
 
   private registerHandlers(): void {
@@ -69,12 +74,15 @@ export class SignalrService {
   }
 
   public createGame(playerName: string, quizId: number): Promise<string> {
-    console.debug(`Creating game for quiz: ${quizId}, player: ${playerName}`);
     return this.hubConnection.invoke('CreateGame', playerName, quizId)
-      .catch(err => {
-        console.error('CREATE GAME ERROR:', err);
-        throw err;
+      .then(gameId => {
+        this.gameCreated$.next(gameId);
+        return gameId;
       });
+  }
+
+  public setQuizIdForGame(gameId: string, quizId: number): void {
+    this.hubConnection.send('SetQuizIdForGame', gameId, quizId);
   }
 
   public joinGame(gameId: string, playerName: string): Promise<boolean> {
@@ -83,5 +91,9 @@ export class SignalrService {
 
   public submitAnswer(gameId: string, questionId: number, answerId: number): void {
     this.hubConnection.send('SubmitAnswer', gameId, questionId, answerId);
+  }
+
+  public startGame(gameId: string): void {
+    this.hubConnection.send('StartGame', gameId);
   }
 }

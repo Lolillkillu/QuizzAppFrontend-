@@ -38,6 +38,10 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      this.quizId = Number(params['quizId']);
+    });
+
     const connectionTimeout = setTimeout(() => {
       if (this.connectionStatus === 'disconnected') {
         this.errorMessage = 'Błąd połączenia z serwerem. Odśwież stronę.';
@@ -102,18 +106,15 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   }
 
   private createNewGame() {
-    if (!this.quizId) {
-      this.errorMessage = 'Brak quizu do utworzenia gry.';
-      this.isSubmitting = false;
-      return;
-    }
-
-    this.signalrService.createGame(this.playerName, this.quizId!)
+    this.signalrService.createGame(this.playerName, this.quizId!) // Przekaż quizId
       .then(gameId => {
         this.gameId = gameId;
         this.gameLink = `${window.location.origin}/multiplayer/${gameId}`;
         this.showNameInput = false;
         this.isSubmitting = false;
+
+        this.signalrService.setQuizIdForGame(gameId, this.quizId!);
+
         this.router.navigate(['/multiplayer', gameId], {
           queryParamsHandling: 'preserve'
         });
@@ -155,6 +156,12 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
 
       this.signalrService.gameError$.subscribe(error => {
         this.errorMessage = error;
+      }),
+
+      this.signalrService.quizIdSet$.subscribe(() => {
+        if (this.gameId) {
+          this.signalrService.startGame(this.gameId);
+        }
       })
     );
   }

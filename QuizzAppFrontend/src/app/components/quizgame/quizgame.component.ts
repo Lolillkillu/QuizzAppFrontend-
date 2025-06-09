@@ -55,8 +55,8 @@ export class QuizGameComponent implements OnInit {
   }
 
   startMultiplayer() {
-    this.router.navigate(['/multiplayer'], { 
-      queryParams: { quizId: this.quizId } 
+    this.router.navigate(['/multiplayer'], {
+      queryParams: { quizId: this.quizId }
     });
   }
 
