@@ -85,13 +85,9 @@
 }
 
 .copy-button {
-  padding: 0.5rem 1rem;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .copy-button:hover {
@@ -169,4 +165,106 @@
 
 .restart-button:hover {
   background-color: #0b7dda;
+}
+
+
+.name-input {
+  position: relative;
+}
+
+.loading-indicator {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #3498db;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  color: #dc3545;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background-color: #f8d7da;
+  border-radius: 4px;
+}
+
+.connection-status span {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.connection-status .connected {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.connection-status .connecting {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.connection-status .disconnected {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.link-share-info {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: #e8f4ff;
+  border-radius: 8px;
+}
+
+.game-link {
+  word-break: break-all;
+  padding: 0.5rem;
+  background-color: white;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+  font-family: monospace;
+}
+
+.players-list-container {
+  margin-top: 2rem;
+}
+
+.player-card {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  margin-bottom: 0.5rem;
+}
+
+.player-card.waiting {
+  background-color: #fff8e1;
+}
+
+.player-avatar {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+}
+
+.player-name {
+  font-weight: 500;
+}
+
+.connection-status .connecting {
+  background-color: #fff3cd;
+  color: #856404;
 }

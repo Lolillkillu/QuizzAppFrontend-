@@ -1,24 +1,71 @@
 <div class="multiplayer-container">
   <div *ngIf="showNameInput" class="name-input">
     <h2>Podaj swoje imię</h2>
-    <input #playerNameInput type="text" placeholder="Twoje imię" />
-    <button (click)="submitPlayerName(playerNameInput.value)">Dalej</button>
+    <input #playerNameInput type="text" placeholder="Twoje imię" [disabled]="isSubmitting"/>
+    
+    <div class="connection-status">
+      Status połączenia: 
+      <span [class.connected]="connectionStatus === 'connected'"
+            [class.connecting]="connectionStatus === 'connecting'"
+            [class.disconnected]="connectionStatus === 'disconnected'">
+        {{ getConnectionStatusText() }}
+      </span>
+    </div>
+    
+    <button 
+      (click)="submitPlayerName(playerNameInput.value)" 
+      [disabled]="isSubmitting || connectionStatus !== 'connected'">
+      {{ isSubmitting ? 'Łączenie...' : 'Dalej' }}
+    </button>
+    
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+    
+    <div *ngIf="isSubmitting" class="loading-indicator">
+      <div class="spinner"></div>
+      <p>Łączenie z serwerem...</p>
+    </div>
   </div>
 
   <div *ngIf="!showNameInput">
     <div *ngIf="gameStatus === 'waiting'">
       <h2>Oczekiwanie na graczy</h2>
-      <div class="game-id-container">
-        <p>ID gry: {{ gameId }}</p>
-        <button class="copy-button" (click)="copyGameId()">Kopiuj link</button>
+      
+      <div class="connection-status">
+        Status połączenia: 
+        <span [class.connected]="connectionStatus === 'connected'"
+              [class.connecting]="connectionStatus === 'connecting'"
+              [class.disconnected]="connectionStatus === 'disconnected'">
+          {{ getConnectionStatusText() }}
+        </span>
       </div>
-      <p>Udostępnij ten link drugiemu graczowi</p>
-      <div class="players-list">
-        <div *ngFor="let player of players" class="player-card">
-          {{ player.name }}
+      
+      <div class="game-id-container">
+        <p>ID gry: <strong>{{ gameId }}</strong></p>
+        <button class="copy-button" (click)="copyGameLink()">
+          <i class="copy-icon">📋</i> Kopiuj link
+        </button>
+      </div>
+      
+      <div class="link-share-info">
+        <p>Udostępnij ten link drugiemu graczowi:</p>
+        <div class="game-link">{{ gameLink || 'Generowanie linku...' }}</div>
+      </div>
+      
+      <div class="players-list-container">
+        <h3>Gracze w lobby ({{ players.length }}/2):</h3>
+        <div class="players-list">
+          <div *ngFor="let player of players" class="player-card">
+            <div class="player-avatar">👤</div>
+            <div class="player-name">{{ player.name }}</div>
+          </div>
+          <div *ngIf="players.length === 1" class="player-card waiting">
+            <div class="player-avatar">⏳</div>
+            <div class="player-name">Oczekiwanie na drugiego gracza...</div>
+          </div>
         </div>
       </div>
-      <p>Status połączenia: {{ connectionStatus }}</p>
     </div>
 
     <div *ngIf="gameStatus === 'in-progress'">
@@ -63,6 +110,10 @@
         </div>
       </div>
       <button class="restart-button" (click)="restartGame()">Zagraj ponownie</button>
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
     </div>
   </div>
 </div>

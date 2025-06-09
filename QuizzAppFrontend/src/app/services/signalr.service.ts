@@ -25,6 +25,7 @@ export class SignalrService {
   }
 
   private startConnection(): void {
+    this.connectionStatus$.next('connecting');
     this.hubConnection.start()
       .then(() => {
         console.log('Połączono z hubem');
@@ -32,7 +33,7 @@ export class SignalrService {
       })
       .catch(err => {
         console.error('Błąd połączenia: ', err);
-        this.connectionStatus$.next('error');
+        this.connectionStatus$.next('disconnected');
         setTimeout(() => this.startConnection(), 5000);
       });
   }
@@ -68,8 +69,13 @@ export class SignalrService {
   }
 
   public createGame(playerName: string, quizId: number): Promise<string> {
-  return this.hubConnection.invoke('CreateGame', playerName, quizId);
-}
+    console.debug(`Creating game for quiz: ${quizId}, player: ${playerName}`);
+    return this.hubConnection.invoke('CreateGame', playerName, quizId)
+      .catch(err => {
+        console.error('CREATE GAME ERROR:', err);
+        throw err;
+      });
+  }
 
   public joinGame(gameId: string, playerName: string): Promise<boolean> {
     return this.hubConnection.invoke('JoinGame', gameId, playerName);

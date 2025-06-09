@@ -5,7 +5,6 @@ import { QuizService } from '../../services/quiz.service';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
-
 @Component({
   selector: 'app-multiplayer-game',
   standalone: true,
@@ -22,11 +21,14 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   quizId: number | null = null;
   playerName = '';
   showNameInput = true;
-  connectionStatus = '';
+  connectionStatus = 'disconnected';
   selectedAnswer: any = null;
   isAnswerSelected = false;
   currentScore = 0;
   playerId: string | null = null;
+  isSubmitting = false;
+  errorMessage = '';
+  gameLink = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -36,46 +38,94 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      if (params['quizId']) {
-        this.quizId = Number(params['quizId']);
+    const connectionTimeout = setTimeout(() => {
+      if (this.connectionStatus === 'disconnected') {
+        this.errorMessage = 'Błąd połączenia z serwerem. Odśwież stronę.';
       }
-    });
+    }, 10000);
 
-    if (this.route.snapshot.paramMap.get('gameId')) {
-      this.gameId = this.route.snapshot.paramMap.get('gameId');
-      this.showNameInput = true;
-    } else if (this.quizId) {
-      this.showNameInput = true;
-    }
+    this.subscriptions.push(
+      this.signalrService.connectionStatus$.subscribe(status => {
+        if (status === 'connected') {
+          clearTimeout(connectionTimeout);
+        }
+        this.connectionStatus = status;
+      })
+    );
   }
 
   submitPlayerName(playerName: string) {
-    this.playerName = playerName;
-    this.showNameInput = false;
-
-    if (this.gameId) {
-      this.signalrService.joinGame(this.gameId, playerName)
-        .then(success => {
-          if (!success) {
-            alert('Nie udało się dołączyć do gry');
-            this.showNameInput = true;
-          }
-        });
-    } else if (this.quizId) {
-      this.signalrService.createGame(playerName, this.quizId)
-        .then(gameId => {
-          this.gameId = gameId;
-          this.router.navigate(['/multiplayer', gameId], {
-            queryParamsHandling: 'preserve'
-          });
-        })
-        .catch(err => {
-          console.error('Błąd tworzenia gry:', err);
-          this.showNameInput = true;
-        });
+    if (!this.quizId && !this.gameId) {
+      this.errorMessage = 'Brak identyfikatora quizu.';
+      return;
+    }
+    
+    if (this.connectionStatus !== 'connected') {
+      this.errorMessage = 'Brak połączenia z serwerem. Poczekaj na połączenie.';
+      return;
     }
 
+    if (!playerName.trim()) {
+      this.errorMessage = 'Nazwa użytkownika nie może być pusta';
+      return;
+    }
+
+    this.playerName = playerName;
+    this.isSubmitting = true;
+    this.errorMessage = '';
+
+    if (this.gameId) {
+      this.joinExistingGame();
+    } else if (this.quizId) {
+      this.createNewGame();
+    }
+
+    this.setupSignalrSubscriptions();
+  }
+
+  private joinExistingGame() {
+    this.signalrService.joinGame(this.gameId!, this.playerName)
+      .then(success => {
+        this.isSubmitting = false;
+        if (!success) {
+          this.errorMessage = 'Nie udało się dołączyć do gry';
+          this.showNameInput = true;
+        } else {
+          this.showNameInput = false;
+        }
+      })
+      .catch(err => {
+        this.isSubmitting = false;
+        this.errorMessage = 'Błąd połączenia z serwerem';
+        console.error('Błąd dołączania do gry:', err);
+      });
+  }
+
+  private createNewGame() {
+    if (!this.quizId) {
+      this.errorMessage = 'Brak quizu do utworzenia gry.';
+      this.isSubmitting = false;
+      return;
+    }
+
+    this.signalrService.createGame(this.playerName, this.quizId!)
+      .then(gameId => {
+        this.gameId = gameId;
+        this.gameLink = `${window.location.origin}/multiplayer/${gameId}`;
+        this.showNameInput = false;
+        this.isSubmitting = false;
+        this.router.navigate(['/multiplayer', gameId], {
+          queryParamsHandling: 'preserve'
+        });
+      })
+      .catch(err => {
+        this.isSubmitting = false;
+        this.errorMessage = 'Nie udało się utworzyć gry';
+        console.error('Błąd tworzenia gry:', err);
+      });
+  }
+
+  private setupSignalrSubscriptions() {
     this.subscriptions.push(
       this.signalrService.playerJoined$.subscribe(players => {
         this.players = players;
@@ -101,8 +151,21 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
           name: r.playerName,
           score: r.score
         }));
+      }),
+
+      this.signalrService.gameError$.subscribe(error => {
+        this.errorMessage = error;
       })
     );
+  }
+
+  getConnectionStatusText(): string {
+    switch (this.connectionStatus) {
+      case 'connected': return 'Połączono';
+      case 'connecting': return 'Łączenie...';
+      case 'disconnected': return 'Rozłączono';
+      default: return this.connectionStatus;
+    }
   }
 
   selectAnswer(answer: any) {
@@ -125,11 +188,17 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
     }
   }
 
-  copyGameId() {
-    const url = `${window.location.origin}/multiplayer/${this.gameId}`;
-    navigator.clipboard.writeText(url)
+  copyGameLink() {
+    if (!this.gameLink && this.gameId) {
+      this.gameLink = `${window.location.origin}/multiplayer/${this.gameId}`;
+    }
+    
+    navigator.clipboard.writeText(this.gameLink)
       .then(() => alert('Link skopiowany do schowka!'))
-      .catch(err => console.error('Błąd kopiowania:', err));
+      .catch(err => {
+        this.errorMessage = 'Błąd kopiowania linku';
+        console.error('Błąd kopiowania:', err);
+      });
   }
 
   ngOnDestroy(): void {
