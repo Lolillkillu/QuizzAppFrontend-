@@ -29,6 +29,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   errorMessage = '';
   gameLink = '';
+  isHost = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,6 +39,12 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      this.gameId = params['gameId'] || null;
+      // Określ czy użytkownik jest hostem (twórcą gry)
+      this.isHost = !this.gameId;
+    });
+
     this.route.queryParams.subscribe(params => {
       this.quizId = Number(params['quizId']);
     });
@@ -79,49 +86,51 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     if (this.gameId) {
-      this.joinExistingGame();
+      this.joinExistingGame(playerName);
     } else if (this.quizId) {
-      this.createNewGame();
+      this.createNewGame(playerName);
     }
 
     this.setupSignalrSubscriptions();
   }
 
-  private joinExistingGame() {
-    this.signalrService.joinGame(this.gameId!, this.playerName)
-      .then(success => {
+  private joinExistingGame(playerName: string) {
+    this.signalrService.joinGame(this.gameId!, playerName, false)
+      .then(playerId => {
+        this.playerId = playerId;
         this.isSubmitting = false;
-        if (!success) {
-          this.errorMessage = 'Nie udało się dołączyć do gry';
-          this.showNameInput = true;
-        } else {
-          this.showNameInput = false;
-        }
+        this.showNameInput = false;
       })
       .catch(err => {
         this.isSubmitting = false;
-        this.errorMessage = 'Błąd połączenia z serwerem';
+        this.errorMessage = 'Nie udało się dołączyć do gry: ' + (err.error || 'Serwer nie odpowiada');
         console.error('Błąd dołączania do gry:', err);
+        this.showNameInput = true;
       });
   }
 
-  private createNewGame() {
-    this.signalrService.createGame(this.playerName, this.quizId!) // Przekaż quizId
+  private createNewGame(playerName: string) {
+    this.signalrService.createGame(this.quizId!)
       .then(gameId => {
         this.gameId = gameId;
         this.gameLink = `${window.location.origin}/multiplayer/${gameId}`;
+        
+        // Po utworzeniu gry, host dołącza do niej
+        return this.signalrService.joinGame(gameId, playerName, true);
+      })
+      .then(playerId => {
+        this.playerId = playerId;
         this.showNameInput = false;
         this.isSubmitting = false;
 
-        this.signalrService.setQuizIdForGame(gameId, this.quizId!);
-
-        this.router.navigate(['/multiplayer', gameId], {
+        // Aktualizujemy URL, aby zawierał gameId
+        this.router.navigate(['/multiplayer', this.gameId], {
           queryParamsHandling: 'preserve'
         });
       })
       .catch(err => {
         this.isSubmitting = false;
-        this.errorMessage = 'Nie udało się utworzyć gry';
+        this.errorMessage = 'Nie udało się utworzyć gry: ' + (err.error || 'Serwer nie odpowiada');
         console.error('Błąd tworzenia gry:', err);
       });
   }
@@ -130,7 +139,6 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.signalrService.playerJoined$.subscribe(players => {
         this.players = players;
-        this.playerId = players.find(p => p.name === this.playerName)?.playerId;
       }),
 
       this.signalrService.nextQuestion$.subscribe(question => {

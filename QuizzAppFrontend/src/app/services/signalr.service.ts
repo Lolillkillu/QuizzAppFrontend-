@@ -73,20 +73,16 @@ export class SignalrService {
     });
   }
 
-  public createGame(playerName: string, quizId: number): Promise<string> {
-    return this.hubConnection.invoke('CreateGame', playerName, quizId)
-      .then(gameId => {
-        this.gameCreated$.next(gameId);
-        return gameId;
-      });
+  public createGame(quizId: number): Promise<string> {
+    return this.hubConnection.invoke('CreateGame', quizId);
   }
 
   public setQuizIdForGame(gameId: string, quizId: number): void {
     this.hubConnection.send('SetQuizIdForGame', gameId, quizId);
   }
 
-  public joinGame(gameId: string, playerName: string): Promise<boolean> {
-    return this.hubConnection.invoke('JoinGame', gameId, playerName);
+  public joinGame(gameId: string, playerName: string, isHost: boolean): Promise<string> {
+    return this.hubConnection.invoke('JoinGame', gameId, playerName, isHost);
   }
 
   public submitAnswer(gameId: string, questionId: number, answerId: number): void {

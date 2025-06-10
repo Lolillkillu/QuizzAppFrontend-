@@ -1,6 +1,6 @@
 <div class="multiplayer-container">
   <div *ngIf="showNameInput" class="name-input">
-    <h2>Podaj swoje imię</h2>
+    <h2>{{ isHost ? 'Podaj swoje imię (Host)' : 'Podaj swoje imię' }}</h2>
     <input #playerNameInput type="text" placeholder="Twoje imię" [disabled]="isSubmitting"/>
     
     <div class="connection-status">
@@ -57,10 +57,10 @@
         <h3>Gracze w lobby ({{ players.length }}/2):</h3>
         <div class="players-list">
           <div *ngFor="let player of players" class="player-card">
-            <div class="player-avatar">👤</div>
+            <div class="player-avatar">{{ player.isHost ? '👑' : '👤' }}</div>
             <div class="player-name">{{ player.name }}</div>
           </div>
-          <div *ngIf="players.length === 1" class="player-card waiting">
+          <div *ngIf="players.length < 2" class="player-card waiting">
             <div class="player-avatar">⏳</div>
             <div class="player-name">Oczekiwanie na drugiego gracza...</div>
           </div>
@@ -78,7 +78,7 @@
       
       <div class="answers-grid">
         <div 
-          *ngFor="let answer of currentQuestion?.answers.$values" 
+          *ngFor="let answer of currentQuestion?.answers" 
           class="answer-card"
           [class.selected]="answer === selectedAnswer"
           [class.correct]="isAnswerSelected && answer.isCorrect"
