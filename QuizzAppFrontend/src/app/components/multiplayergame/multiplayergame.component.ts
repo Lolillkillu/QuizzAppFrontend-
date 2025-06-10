@@ -20,16 +20,18 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   gameStatus: 'waiting' | 'in-progress' | 'completed' = 'waiting';
   quizId: number | null = null;
   playerName = '';
-  showNameInput = true;
+  showNameInput = false;
   connectionStatus = 'disconnected';
   selectedAnswer: any = null;
   isAnswerSelected = false;
   currentScore = 0;
   playerId: string | null = null;
   isSubmitting = false;
+  isJoining = false;
   errorMessage = '';
   gameLink = '';
   isHost = false;
+  viewState: 'init' | 'gameCreated' | 'nameInput' | 'inGame' = 'init';
 
   constructor(
     private route: ActivatedRoute,
@@ -41,12 +43,13 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.gameId = params['gameId'] || null;
-      // Określ czy użytkownik jest hostem (twórcą gry)
-      this.isHost = !this.gameId;
+      this.updateViewState();
     });
 
     this.route.queryParams.subscribe(params => {
       this.quizId = Number(params['quizId']);
+      this.isHost = params['host'] === 'true';
+      this.updateViewState();
     });
 
     const connectionTimeout = setTimeout(() => {
@@ -65,73 +68,74 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
     );
   }
 
-  submitPlayerName(playerName: string) {
-    if (!this.quizId && !this.gameId) {
+  private updateViewState() {
+    if (this.gameId) {
+      this.gameLink = `${window.location.origin}/multiplayer/${this.gameId}`;
+      if (this.isHost) {
+        this.viewState = 'gameCreated';
+      } else {
+        this.viewState = 'nameInput';
+      }
+    } else {
+      this.viewState = 'init';
+    }
+  }
+
+  createGame() {
+    if (!this.quizId) {
       this.errorMessage = 'Brak identyfikatora quizu.';
       return;
     }
-    
-    if (this.connectionStatus !== 'connected') {
-      this.errorMessage = 'Brak połączenia z serwerem. Poczekaj na połączenie.';
-      return;
-    }
 
-    if (!playerName.trim()) {
-      this.errorMessage = 'Nazwa użytkownika nie może być pusta';
-      return;
-    }
-
-    this.playerName = playerName;
     this.isSubmitting = true;
     this.errorMessage = '';
 
-    if (this.gameId) {
-      this.joinExistingGame(playerName);
-    } else if (this.quizId) {
-      this.createNewGame(playerName);
-    }
-
-    this.setupSignalrSubscriptions();
-  }
-
-  private joinExistingGame(playerName: string) {
-    this.signalrService.joinGame(this.gameId!, playerName, false)
-      .then(playerId => {
-        this.playerId = playerId;
-        this.isSubmitting = false;
-        this.showNameInput = false;
-      })
-      .catch(err => {
-        this.isSubmitting = false;
-        this.errorMessage = 'Nie udało się dołączyć do gry: ' + (err.error || 'Serwer nie odpowiada');
-        console.error('Błąd dołączania do gry:', err);
-        this.showNameInput = true;
-      });
-  }
-
-  private createNewGame(playerName: string) {
-    this.signalrService.createGame(this.quizId!)
+    this.signalrService.createGame(this.quizId)
       .then(gameId => {
         this.gameId = gameId;
         this.gameLink = `${window.location.origin}/multiplayer/${gameId}`;
-        
-        // Po utworzeniu gry, host dołącza do niej
-        return this.signalrService.joinGame(gameId, playerName, true);
-      })
-      .then(playerId => {
-        this.playerId = playerId;
-        this.showNameInput = false;
         this.isSubmitting = false;
-
-        // Aktualizujemy URL, aby zawierał gameId
-        this.router.navigate(['/multiplayer', this.gameId], {
-          queryParamsHandling: 'preserve'
+        this.router.navigate(['/multiplayer', gameId], {
+          queryParams: { quizId: this.quizId, host: true },
+          queryParamsHandling: 'merge'
         });
       })
       .catch(err => {
         this.isSubmitting = false;
         this.errorMessage = 'Nie udało się utworzyć gry: ' + (err.error || 'Serwer nie odpowiada');
         console.error('Błąd tworzenia gry:', err);
+      });
+  }
+
+  joinGame(playerName: string) {
+    this.isJoining = true;
+    this.errorMessage = '';
+
+    if (!playerName.trim()) {
+      this.errorMessage = 'Nazwa użytkownika nie może być pusta';
+      this.isJoining = false;
+      return;
+    }
+
+    if (!this.gameId) {
+      this.errorMessage = 'Brak identyfikatora gry';
+      this.isJoining = false;
+      return;
+    }
+
+    this.playerName = playerName;
+    
+    this.signalrService.joinGame(this.gameId, playerName, this.isHost)
+      .then(playerId => {
+        this.playerId = playerId;
+        this.isJoining = false;
+        this.viewState = 'inGame';
+        this.setupSignalrSubscriptions();
+      })
+      .catch(err => {
+        this.isJoining = false;
+        this.errorMessage = 'Nie udało się dołączyć do gry: ' + (err.error || 'Serwer nie odpowiada');
+        console.error('Błąd dołączania do gry:', err);
       });
   }
 

@@ -1,7 +1,34 @@
 <div class="multiplayer-container">
-  <div *ngIf="showNameInput" class="name-input">
-    <h2>{{ isHost ? 'Podaj swoje imię (Host)' : 'Podaj swoje imię' }}</h2>
-    <input #playerNameInput type="text" placeholder="Twoje imię" [disabled]="isSubmitting"/>
+  <!-- Ekran początkowy dla hosta -->
+  <div *ngIf="viewState === 'init'" class="init-container">
+    <h2>Stwórz nową grę multiplayer</h2>
+    <div class="connection-status">
+      Status połączenia: 
+      <span [class.connected]="connectionStatus === 'connected'"
+            [class.connecting]="connectionStatus === 'connecting'"
+            [class.disconnected]="connectionStatus === 'disconnected'">
+        {{ getConnectionStatusText() }}
+      </span>
+    </div>
+    
+    <button (click)="createGame()" 
+            [disabled]="isSubmitting || connectionStatus !== 'connected'">
+      {{ isSubmitting ? 'Tworzenie...' : 'Stwórz grę' }}
+    </button>
+    
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+    
+    <div *ngIf="isSubmitting" class="loading-indicator">
+      <div class="spinner"></div>
+      <p>Tworzenie gry...</p>
+    </div>
+  </div>
+
+  <!-- Ekran z linkiem dla hosta -->
+  <div *ngIf="viewState === 'gameCreated'" class="game-created-container">
+    <h2>Gra utworzona pomyślnie!</h2>
     
     <div class="connection-status">
       Status połączenia: 
@@ -12,23 +39,58 @@
       </span>
     </div>
     
-    <button 
-      (click)="submitPlayerName(playerNameInput.value)" 
-      [disabled]="isSubmitting || connectionStatus !== 'connected'">
-      {{ isSubmitting ? 'Łączenie...' : 'Dalej' }}
+    <div class="link-share-info">
+      <p>Udostępnij ten link innym graczom:</p>
+      <div class="game-link">{{ gameLink }}</div>
+      <button (click)="copyGameLink()" class="copy-button">
+        <i class="copy-icon">📋</i> Kopiuj link
+      </button>
+    </div>
+    
+    <h3>Teraz dołącz do gry jako host:</h3>
+    <div class="name-input">
+      <input #hostNameInput type="text" placeholder="Twoje imię" [disabled]="isJoining"/>
+      <button (click)="joinGame(hostNameInput.value)" 
+              [disabled]="isJoining || connectionStatus !== 'connected'">
+        {{ isJoining ? 'Dołączanie...' : 'Dołącz do gry' }}
+      </button>
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Ekran dołączania dla gościa -->
+  <div *ngIf="viewState === 'nameInput'" class="name-input">
+    <h2>Dołącz do gry multiplayer</h2>
+    <input #playerNameInput type="text" placeholder="Twoje imię" [disabled]="isJoining"/>
+    
+    <div class="connection-status">
+      Status połączenia: 
+      <span [class.connected]="connectionStatus === 'connected'"
+            [class.connecting]="connectionStatus === 'connecting'"
+            [class.disconnected]="connectionStatus === 'disconnected'">
+        {{ getConnectionStatusText() }}
+      </span>
+    </div>
+    
+    <button (click)="joinGame(playerNameInput.value)" 
+            [disabled]="isJoining || connectionStatus !== 'connected'">
+      {{ isJoining ? 'Dołączanie...' : 'Dołącz do gry' }}
     </button>
     
     <div *ngIf="errorMessage" class="error-message">
       {{ errorMessage }}
     </div>
     
-    <div *ngIf="isSubmitting" class="loading-indicator">
+    <div *ngIf="isJoining" class="loading-indicator">
       <div class="spinner"></div>
-      <p>Łączenie z serwerem...</p>
+      <p>Dołączanie do gry...</p>
     </div>
   </div>
 
-  <div *ngIf="!showNameInput">
+  <!-- Ekran gry -->
+  <div *ngIf="viewState === 'inGame'">
     <div *ngIf="gameStatus === 'waiting'">
       <h2>Oczekiwanie na graczy</h2>
       
@@ -49,7 +111,7 @@
       </div>
       
       <div class="link-share-info">
-        <p>Udostępnij ten link drugiemu graczowi:</p>
+        <p>Udostępnij ten link innym graczom:</p>
         <div class="game-link">{{ gameLink || 'Generowanie linku...' }}</div>
       </div>
       
