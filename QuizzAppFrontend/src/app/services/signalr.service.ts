@@ -14,6 +14,7 @@ export class SignalrService {
   public gameCompleted$ = new Subject<any[]>();
   public gameError$ = new Subject<string>();
   public quizIdSet$ = new Subject<void>();
+  public playerReady$ = new Subject<void>();
 
   constructor() {
     this.hubConnection = new signalR.HubConnectionBuilder()
@@ -91,5 +92,9 @@ export class SignalrService {
 
   public startGame(gameId: string): void {
     this.hubConnection.send('StartGame', gameId);
+  }
+
+  public sendPlayerReady(gameId: string): Promise<void> {
+    return this.hubConnection.invoke('PlayerReady', gameId);
   }
 }

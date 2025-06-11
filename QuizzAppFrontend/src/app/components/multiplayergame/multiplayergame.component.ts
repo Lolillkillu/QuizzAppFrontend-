@@ -20,7 +20,6 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   gameStatus: 'waiting' | 'in-progress' | 'completed' = 'waiting';
   quizId: number | null = null;
   playerName = '';
-  showNameInput = false;
   connectionStatus = 'disconnected';
   selectedAnswer: any = null;
   isAnswerSelected = false;
@@ -32,6 +31,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   gameLink = '';
   isHost = false;
   viewState: 'init' | 'gameCreated' | 'nameInput' | 'inGame' = 'init';
+  isPlayerReady = false; // Flaga gotowości gracza
 
   constructor(
     private route: ActivatedRoute,
@@ -168,14 +168,16 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
 
       this.signalrService.gameError$.subscribe(error => {
         this.errorMessage = error;
-      }),
-
-      this.signalrService.quizIdSet$.subscribe(() => {
-        if (this.gameId) {
-          this.signalrService.startGame(this.gameId);
-        }
       })
     );
+  }
+
+  markPlayerReady() {
+    if (!this.gameId) return;
+    this.isPlayerReady = true;
+    this.signalrService.sendPlayerReady(this.gameId).then(() => {
+      console.log('Player ready sent');
+    });
   }
 
   getConnectionStatusText(): string {

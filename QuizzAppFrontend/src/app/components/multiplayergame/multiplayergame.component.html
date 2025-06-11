@@ -1,5 +1,4 @@
 <div class="multiplayer-container">
-  <!-- Ekran początkowy dla hosta -->
   <div *ngIf="viewState === 'init'" class="init-container">
     <h2>Stwórz nową grę multiplayer</h2>
     <div class="connection-status">
@@ -26,7 +25,6 @@
     </div>
   </div>
 
-  <!-- Ekran z linkiem dla hosta -->
   <div *ngIf="viewState === 'gameCreated'" class="game-created-container">
     <h2>Gra utworzona pomyślnie!</h2>
     
@@ -60,7 +58,6 @@
     </div>
   </div>
 
-  <!-- Ekran dołączania dla gościa -->
   <div *ngIf="viewState === 'nameInput'" class="name-input">
     <h2>Dołącz do gry multiplayer</h2>
     <input #playerNameInput type="text" placeholder="Twoje imię" [disabled]="isJoining"/>
@@ -89,7 +86,6 @@
     </div>
   </div>
 
-  <!-- Ekran gry -->
   <div *ngIf="viewState === 'inGame'">
     <div *ngIf="gameStatus === 'waiting'">
       <h2>Oczekiwanie na graczy</h2>
@@ -127,6 +123,15 @@
             <div class="player-name">Oczekiwanie na drugiego gracza...</div>
           </div>
         </div>
+      </div>
+
+      <div *ngIf="!isPlayerReady" class="ready-section">
+        <button (click)="markPlayerReady()" class="ready-button">
+          Jestem gotowy!
+        </button>
+      </div>
+      <div *ngIf="isPlayerReady" class="waiting-message">
+        Oczekiwanie na drugiego gracza...
       </div>
     </div>
 
