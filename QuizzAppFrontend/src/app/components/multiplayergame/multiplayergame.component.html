@@ -166,7 +166,15 @@
       </div>
     </div>
 
-    <div *ngIf="gameStatus === 'completed'">
+    <div *ngIf="gameStatus === 'completed' && !playerCompleted" class="waiting-results">
+      <h2>Gratulacje! Ukończyłeś grę!</h2>
+      <div class="waiting-message">
+        <p>Oczekiwanie na zakończenie gry przez pozostałych graczy...</p>
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+
+    <div *ngIf="gameStatus === 'completed' && playerCompleted">
       <h2>Gra zakończona!</h2>
       <div class="results">
         <h3>Ranking graczy:</h3>

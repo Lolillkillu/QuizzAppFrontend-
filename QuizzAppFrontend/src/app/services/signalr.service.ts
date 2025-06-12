@@ -15,6 +15,7 @@ export class SignalrService {
   public gameError$ = new Subject<string>();
   public quizIdSet$ = new Subject<void>();
   public playerReady$ = new Subject<void>();
+  public playerCompleted$ = new Subject<void>();
 
   constructor() {
     this.hubConnection = new signalR.HubConnectionBuilder()
@@ -71,6 +72,10 @@ export class SignalrService {
 
     this.hubConnection.on('GameCreated', (gameId: string, quizId: number) => {
       this.gameCreated$.next(gameId);
+    });
+
+    this.hubConnection.on('PlayerCompleted', () => {
+      this.playerCompleted$.next();
     });
   }
 

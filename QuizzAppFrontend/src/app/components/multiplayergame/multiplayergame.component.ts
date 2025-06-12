@@ -31,14 +31,15 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   gameLink = '';
   isHost = false;
   viewState: 'init' | 'gameCreated' | 'nameInput' | 'inGame' = 'init';
-  isPlayerReady = false; // Flaga gotowości gracza
+  isPlayerReady = false;
+  playerCompleted = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private signalrService: SignalrService,
     private quizService: QuizService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -124,7 +125,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
     }
 
     this.playerName = playerName;
-    
+
     this.signalrService.joinGame(this.gameId, playerName, this.isHost)
       .then(playerId => {
         this.playerId = playerId;
@@ -139,38 +140,53 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
       });
   }
 
-  private setupSignalrSubscriptions() {
-    this.subscriptions.push(
-      this.signalrService.playerJoined$.subscribe(players => {
-        this.players = players;
-      }),
+private setupSignalrSubscriptions() {
+  this.subscriptions.push(
+    this.signalrService.playerCompleted$.subscribe(() => {
+      this.playerCompleted = true;
+    })
+  );
 
-      this.signalrService.nextQuestion$.subscribe(question => {
-        this.currentQuestion = question;
-        this.gameStatus = 'in-progress';
-        this.selectedAnswer = null;
-        this.isAnswerSelected = false;
-      }),
+  this.subscriptions.push(
+    this.signalrService.playerJoined$.subscribe(players => {
+      this.players = players;
+    })
+  );
 
-      this.signalrService.answerProcessed$.subscribe(result => {
-        if (result.playerId === this.playerId && result.isCorrect) {
-          this.currentScore++;
-        }
-      }),
+  this.subscriptions.push(
+    this.signalrService.nextQuestion$.subscribe(question => {
+      this.currentQuestion = question;
+      this.gameStatus = 'in-progress';
+      this.selectedAnswer = null;
+      this.isAnswerSelected = false;
+    })
+  );
 
-      this.signalrService.gameCompleted$.subscribe(results => {
-        this.gameStatus = 'completed';
-        this.players = results.map((r: any) => ({
-          name: r.playerName,
-          score: r.score
-        }));
-      }),
+  this.subscriptions.push(
+    this.signalrService.answerProcessed$.subscribe(result => {
+      if (result.playerId === this.playerId && result.isCorrect) {
+        this.currentScore++;
+      }
+    })
+  );
 
-      this.signalrService.gameError$.subscribe(error => {
-        this.errorMessage = error;
-      })
-    );
-  }
+  this.subscriptions.push(
+    this.signalrService.gameCompleted$.subscribe(results => {
+      this.gameStatus = 'completed';
+      this.playerCompleted = true;
+      this.players = results.map((r: any) => ({
+        name: r.playerName,
+        score: r.score
+      }));
+    })
+  );
+
+  this.subscriptions.push(
+    this.signalrService.gameError$.subscribe(error => {
+      this.errorMessage = error;
+    })
+  );
+}
 
   markPlayerReady() {
     if (!this.gameId) return;
@@ -194,8 +210,8 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
       this.selectedAnswer = answer;
       this.isAnswerSelected = true;
       this.signalrService.submitAnswer(
-        this.gameId, 
-        this.currentQuestion.questionId, 
+        this.gameId,
+        this.currentQuestion.questionId,
         answer.answerId
       );
     }
@@ -213,7 +229,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
     if (!this.gameLink && this.gameId) {
       this.gameLink = `${window.location.origin}/multiplayer/${this.gameId}`;
     }
-    
+
     navigator.clipboard.writeText(this.gameLink)
       .then(() => alert('Link skopiowany do schowka!'))
       .catch(err => {
