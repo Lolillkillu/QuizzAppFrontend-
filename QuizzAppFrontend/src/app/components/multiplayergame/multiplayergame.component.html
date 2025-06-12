@@ -136,9 +136,21 @@
     </div>
 
     <div *ngIf="gameStatus === 'in-progress'">
+      <!-- Pasek postępu -->
+      <div class="progress-bar">
+        <div 
+          *ngFor="let status of questionStatuses; let i = index"
+          class="progress-item"
+          [class.correct]="status === 'correct'"
+          [class.incorrect]="status === 'incorrect'"
+          [class.active]="i === playerProgress"
+          [class.unanswered]="status === 'unanswered'"
+        ></div>
+      </div>
+
       <div class="game-info">
         <div>Twoje punkty: {{ currentScore }}</div>
-        <div>Postęp: {{ playerProgress }}/10</div> <!-- Dodany postęp -->
+        <div>Pytanie: {{ playerProgress + 1 }}/10</div>
         <div>Gracze online: {{ players.length }}</div>
       </div>
 

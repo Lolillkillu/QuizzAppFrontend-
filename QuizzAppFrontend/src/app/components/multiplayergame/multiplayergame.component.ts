@@ -34,6 +34,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   isPlayerReady = false;
   playerCompleted = false;
   playerProgress = 0;
+  questionStatuses: Array<'unanswered' | 'correct' | 'incorrect'> = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -160,14 +161,24 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
         this.gameStatus = 'in-progress';
         this.selectedAnswer = null;
         this.isAnswerSelected = false;
+        
+        if (this.playerProgress === 0) {
+          this.questionStatuses = Array(10).fill('unanswered');
+        }
+        
         this.playerProgress++;
       })
     );
 
     this.subscriptions.push(
       this.signalrService.answerProcessed$.subscribe(result => {
-        if (result.playerId === this.playerId && result.isCorrect) {
-          this.currentScore++;
+        if (result.playerId === this.playerId) {
+          const status = result.isCorrect ? 'correct' : 'incorrect';
+          this.questionStatuses[this.playerProgress - 1] = status;
+          
+          if (result.isCorrect) {
+            this.currentScore++;
+          }
         }
       })
     );
