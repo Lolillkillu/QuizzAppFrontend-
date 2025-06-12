@@ -33,6 +33,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   viewState: 'init' | 'gameCreated' | 'nameInput' | 'inGame' = 'init';
   isPlayerReady = false;
   playerCompleted = false;
+  playerProgress = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -140,53 +141,54 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
       });
   }
 
-private setupSignalrSubscriptions() {
-  this.subscriptions.push(
-    this.signalrService.playerCompleted$.subscribe(() => {
-      this.playerCompleted = true;
-    })
-  );
+  private setupSignalrSubscriptions() {
+    this.subscriptions.push(
+      this.signalrService.playerCompleted$.subscribe(() => {
+        this.playerCompleted = true;
+      })
+    );
 
-  this.subscriptions.push(
-    this.signalrService.playerJoined$.subscribe(players => {
-      this.players = players;
-    })
-  );
+    this.subscriptions.push(
+      this.signalrService.playerJoined$.subscribe(players => {
+        this.players = players;
+      })
+    );
 
-  this.subscriptions.push(
-    this.signalrService.nextQuestion$.subscribe(question => {
-      this.currentQuestion = question;
-      this.gameStatus = 'in-progress';
-      this.selectedAnswer = null;
-      this.isAnswerSelected = false;
-    })
-  );
+    this.subscriptions.push(
+      this.signalrService.nextQuestion$.subscribe(question => {
+        this.currentQuestion = question;
+        this.gameStatus = 'in-progress';
+        this.selectedAnswer = null;
+        this.isAnswerSelected = false;
+        this.playerProgress++;
+      })
+    );
 
-  this.subscriptions.push(
-    this.signalrService.answerProcessed$.subscribe(result => {
-      if (result.playerId === this.playerId && result.isCorrect) {
-        this.currentScore++;
-      }
-    })
-  );
+    this.subscriptions.push(
+      this.signalrService.answerProcessed$.subscribe(result => {
+        if (result.playerId === this.playerId && result.isCorrect) {
+          this.currentScore++;
+        }
+      })
+    );
 
-  this.subscriptions.push(
-    this.signalrService.gameCompleted$.subscribe(results => {
-      this.gameStatus = 'completed';
-      this.playerCompleted = true;
-      this.players = results.map((r: any) => ({
-        name: r.playerName,
-        score: r.score
-      }));
-    })
-  );
+    this.subscriptions.push(
+      this.signalrService.gameCompleted$.subscribe(results => {
+        this.gameStatus = 'completed';
+        this.playerCompleted = true;
+        this.players = results.map((r: any) => ({
+          name: r.playerName,
+          score: r.score
+        }));
+      })
+    );
 
-  this.subscriptions.push(
-    this.signalrService.gameError$.subscribe(error => {
-      this.errorMessage = error;
-    })
-  );
-}
+    this.subscriptions.push(
+      this.signalrService.gameError$.subscribe(error => {
+        this.errorMessage = error;
+      })
+    );
+  }
 
   markPlayerReady() {
     if (!this.gameId) return;

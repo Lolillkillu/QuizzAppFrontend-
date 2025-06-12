@@ -138,6 +138,7 @@
     <div *ngIf="gameStatus === 'in-progress'">
       <div class="game-info">
         <div>Twoje punkty: {{ currentScore }}</div>
+        <div>Postęp: {{ playerProgress }}/10</div> <!-- Dodany postęp -->
         <div>Gracze online: {{ players.length }}</div>
       </div>
 
