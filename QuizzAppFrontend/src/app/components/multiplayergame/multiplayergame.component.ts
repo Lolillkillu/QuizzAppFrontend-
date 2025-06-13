@@ -33,8 +33,9 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   viewState: 'init' | 'gameCreated' | 'nameInput' | 'inGame' = 'init';
   isPlayerReady = false;
   playerCompleted = false;
-  playerProgress = 0;
+  currentQuestionIndex = -1;
   questionStatuses: Array<'unanswered' | 'correct' | 'incorrect'> = [];
+  allPlayersReady = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -152,6 +153,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.signalrService.playerJoined$.subscribe(players => {
         this.players = players;
+        this.checkAllPlayersReady();
       })
     );
 
@@ -161,12 +163,13 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
         this.gameStatus = 'in-progress';
         this.selectedAnswer = null;
         this.isAnswerSelected = false;
+        this.isPlayerReady = false;
         
-        if (this.playerProgress === 0) {
+        this.currentQuestionIndex++;
+        
+        if (this.currentQuestionIndex === 0) {
           this.questionStatuses = Array(10).fill('unanswered');
         }
-        
-        this.playerProgress++;
       })
     );
 
@@ -174,7 +177,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
       this.signalrService.answerProcessed$.subscribe(result => {
         if (result.playerId === this.playerId) {
           const status = result.isCorrect ? 'correct' : 'incorrect';
-          this.questionStatuses[this.playerProgress - 1] = status;
+          this.questionStatuses[this.currentQuestionIndex] = status;
           
           if (result.isCorrect) {
             this.currentScore++;
@@ -199,14 +202,28 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
         this.errorMessage = error;
       })
     );
+
+    this.subscriptions.push(
+      this.signalrService.playerReady$.subscribe((playerId) => {
+        const player = this.players.find(p => p.id === playerId);
+        if (player) {
+          player.isReady = true;
+        }
+        this.checkAllPlayersReady();
+      })
+    );
+  }
+
+  private checkAllPlayersReady() {
+    if (this.players.length >= 2) {
+      this.allPlayersReady = this.players.every(player => player.isReady);
+    }
   }
 
   markPlayerReady() {
     if (!this.gameId) return;
     this.isPlayerReady = true;
-    this.signalrService.sendPlayerReady(this.gameId).then(() => {
-      console.log('Player ready sent');
-    });
+    this.signalrService.sendPlayerReady(this.gameId);
   }
 
   getConnectionStatusText(): string {

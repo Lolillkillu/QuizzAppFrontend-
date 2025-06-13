@@ -117,6 +117,8 @@
           <div *ngFor="let player of players" class="player-card">
             <div class="player-avatar">{{ player.isHost ? '👑' : '👤' }}</div>
             <div class="player-name">{{ player.name }}</div>
+            <div class="player-status" *ngIf="player.isReady">✅ Gotowy</div>
+            <div class="player-status" *ngIf="!player.isReady">❌ Nie gotowy</div>
           </div>
           <div *ngIf="players.length < 2" class="player-card waiting">
             <div class="player-avatar">⏳</div>
@@ -127,11 +129,14 @@
 
       <div *ngIf="!isPlayerReady" class="ready-section">
         <button (click)="markPlayerReady()" class="ready-button">
-          Jestem gotowy!
+          Gotowy
         </button>
       </div>
-      <div *ngIf="isPlayerReady" class="waiting-message">
+      <div *ngIf="isPlayerReady && !allPlayersReady" class="waiting-message">
         Oczekiwanie na drugiego gracza...
+      </div>
+      <div *ngIf="allPlayersReady" class="starting-message">
+        Gracze są gotowi... Rozpoczęcie gry...
       </div>
     </div>
 
@@ -143,14 +148,14 @@
           class="progress-item"
           [class.correct]="status === 'correct'"
           [class.incorrect]="status === 'incorrect'"
-          [class.active]="i === playerProgress"
+          [class.active]="i === currentQuestionIndex"
           [class.unanswered]="status === 'unanswered'"
         ></div>
       </div>
 
       <div class="game-info">
         <div>Twoje punkty: {{ currentScore }}</div>
-        <div>Pytanie: {{ playerProgress + 1 }}/10</div>
+        <div>Pytanie: {{ currentQuestionIndex + 1 }}/10</div>
         <div>Gracze online: {{ players.length }}</div>
       </div>
 
