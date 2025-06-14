@@ -87,7 +87,8 @@
   </div>
 
   <div *ngIf="viewState === 'inGame'">
-    <div *ngIf="playerCompleted && gameStatus !== 'completed'" class="waiting-results">
+    <!-- Ekran oczekiwania po ukończeniu przez gracza -->
+    <div *ngIf="playerStatus === 'completed' && gameStatus !== 'completed'" class="waiting-results">
       <h2>Gratulacje! Ukończyłeś grę!</h2>
       <div class="waiting-message">
         <p>Oczekiwanie na zakończenie gry przez pozostałych graczy...</p>
@@ -100,14 +101,13 @@
             <div class="player-avatar">{{ player.isHost ? '👑' : '👤' }}</div>
             <div class="player-name">{{ player.name }}</div>
             <div class="player-status" *ngIf="player.completed">✅ Ukończył</div>
-            <div class="player-status" *ngIf="!player.completed && player.isReady">✅ Gotowy</div>
-            <div class="player-status" *ngIf="!player.completed && !player.isReady">❌ Nie gotowy</div>
+            <div class="player-status" *ngIf="!player.completed">⌛ W trakcie gry</div>
           </div>
         </div>
       </div>
     </div>
 
-    <div *ngIf="gameStatus === 'waiting' && !playerCompleted">
+    <div *ngIf="gameStatus === 'waiting' && playerStatus === 'playing'">
       <h2>Oczekiwanie na graczy</h2>
       
       <div class="connection-status">
@@ -161,7 +161,7 @@
       </div>
     </div>
 
-    <div *ngIf="gameStatus === 'in-progress' && !playerCompleted">
+    <div *ngIf="playerStatus === 'playing' && gameStatus === 'in-progress'">
       <div class="progress-bar">
         <div 
           *ngFor="let status of questionStatuses; let i = index"

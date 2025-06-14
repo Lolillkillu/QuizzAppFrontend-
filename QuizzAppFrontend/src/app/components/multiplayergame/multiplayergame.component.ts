@@ -36,6 +36,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   currentQuestionIndex = -1;
   questionStatuses: Array<'unanswered' | 'correct' | 'incorrect'> = [];
   allPlayersReady = false;
+  playerStatus: 'playing' | 'completed' = 'playing';
 
   constructor(
     private route: ActivatedRoute,
@@ -152,8 +153,10 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
           player.completed = true;
         }
         
+        // TYLKO dla gracza który ukończył
         if (playerId === this.playerId) {
           this.playerCompleted = true;
+          this.playerStatus = 'completed';
         }
       })
     );
@@ -172,6 +175,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
         this.selectedAnswer = null;
         this.isAnswerSelected = false;
         this.isPlayerReady = false;
+        this.playerStatus = 'playing';
         
         this.currentQuestionIndex++;
         
@@ -198,6 +202,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
       this.signalrService.gameCompleted$.subscribe(results => {
         this.gameStatus = 'completed';
         this.playerCompleted = true;
+        this.playerStatus = 'completed';
         this.players = results.map((r: any) => ({
           name: r.playerName,
           score: r.score
