@@ -129,12 +129,13 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
 
     this.playerName = playerName;
 
+    this.setupSignalrSubscriptions();
+
     this.signalrService.joinGame(this.gameId, playerName, this.isHost)
       .then(playerId => {
         this.playerId = playerId;
         this.isJoining = false;
         this.viewState = 'inGame';
-        this.setupSignalrSubscriptions();
       })
       .catch(err => {
         this.isJoining = false;
@@ -145,8 +146,15 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
 
   private setupSignalrSubscriptions() {
     this.subscriptions.push(
-      this.signalrService.playerCompleted$.subscribe(() => {
-        this.playerCompleted = true;
+      this.signalrService.playerCompleted$.subscribe((playerId: string) => {
+        const player = this.players.find(p => p.id === playerId);
+        if (player) {
+          player.completed = true;
+        }
+        
+        if (playerId === this.playerId) {
+          this.playerCompleted = true;
+        }
       })
     );
 
