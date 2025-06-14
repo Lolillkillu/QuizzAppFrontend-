@@ -216,7 +216,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
 
   private checkAllPlayersReady() {
     if (this.players.length >= 2) {
-      this.allPlayersReady = this.players.every(player => player.isReady);
+      this.allPlayersReady = this.players.filter(p => p.isReady).length >= 2;
     }
   }
 
