@@ -87,7 +87,27 @@
   </div>
 
   <div *ngIf="viewState === 'inGame'">
-    <div *ngIf="gameStatus === 'waiting'">
+    <div *ngIf="playerCompleted && gameStatus !== 'completed'" class="waiting-results">
+      <h2>Gratulacje! Ukończyłeś grę!</h2>
+      <div class="waiting-message">
+        <p>Oczekiwanie na zakończenie gry przez pozostałych graczy...</p>
+        <div class="loading-spinner"></div>
+      </div>
+      <div class="players-list-container">
+        <h3>Gracze:</h3>
+        <div class="players-list">
+          <div *ngFor="let player of players" class="player-card">
+            <div class="player-avatar">{{ player.isHost ? '👑' : '👤' }}</div>
+            <div class="player-name">{{ player.name }}</div>
+            <div class="player-status" *ngIf="player.completed">✅ Ukończył</div>
+            <div class="player-status" *ngIf="!player.completed && player.isReady">✅ Gotowy</div>
+            <div class="player-status" *ngIf="!player.completed && !player.isReady">❌ Nie gotowy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="gameStatus === 'waiting' && !playerCompleted">
       <h2>Oczekiwanie na graczy</h2>
       
       <div class="connection-status">
@@ -117,8 +137,9 @@
           <div *ngFor="let player of players" class="player-card">
             <div class="player-avatar">{{ player.isHost ? '👑' : '👤' }}</div>
             <div class="player-name">{{ player.name }}</div>
-            <div class="player-status" *ngIf="player.isReady">✅ Gotowy</div>
-            <div class="player-status" *ngIf="!player.isReady">❌ Nie gotowy</div>
+            <div class="player-status" *ngIf="player.completed">✅ Ukończył</div>
+            <div class="player-status" *ngIf="!player.completed && player.isReady">✅ Gotowy</div>
+            <div class="player-status" *ngIf="!player.completed && !player.isReady">❌ Nie gotowy</div>
           </div>
           <div *ngIf="players.length < 2" class="player-card waiting">
             <div class="player-avatar">⏳</div>
@@ -140,8 +161,7 @@
       </div>
     </div>
 
-    <div *ngIf="gameStatus === 'in-progress'">
-      <!-- Pasek postępu -->
+    <div *ngIf="gameStatus === 'in-progress' && !playerCompleted">
       <div class="progress-bar">
         <div 
           *ngFor="let status of questionStatuses; let i = index"
@@ -184,15 +204,7 @@
       </div>
     </div>
 
-    <div *ngIf="gameStatus === 'completed' && !playerCompleted" class="waiting-results">
-      <h2>Gratulacje! Ukończyłeś grę!</h2>
-      <div class="waiting-message">
-        <p>Oczekiwanie na zakończenie gry przez pozostałych graczy...</p>
-        <div class="loading-spinner"></div>
-      </div>
-    </div>
-
-    <div *ngIf="gameStatus === 'completed' && playerCompleted">
+    <div *ngIf="gameStatus === 'completed'">
       <h2>Gra zakończona!</h2>
       <div class="results">
         <h3>Ranking graczy:</h3>
