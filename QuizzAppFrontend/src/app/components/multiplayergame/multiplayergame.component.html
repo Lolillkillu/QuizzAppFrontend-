@@ -195,10 +195,10 @@
       
       <div *ngIf="isAnswerSelected" class="feedback-message">
         <div *ngIf="selectedAnswer?.isCorrect" class="correct-feedback">
-          Poprawna odpowiedź!
+          Dobrze
         </div>
         <div *ngIf="!selectedAnswer?.isCorrect" class="incorrect-feedback">
-          Niestety, to nie jest poprawna odpowiedź
+          Źle
         </div>
       </div>
     </div>
@@ -210,7 +210,7 @@
         <table class="results-table">
           <thead>
             <tr>
-              <th>Pozycja</th>
+              <th>Miejsce</th>
               <th>Nazwa gracza</th>
               <th>Punkty</th>
               <th>Odpowiedzi</th>
