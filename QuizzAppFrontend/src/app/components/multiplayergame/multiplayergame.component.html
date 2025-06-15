@@ -207,11 +207,45 @@
       <h2>Gra zakończona!</h2>
       <div class="results">
         <h3>Ranking graczy:</h3>
-        <div *ngFor="let player of players; let i = index" class="player-result">
-          <span class="player-position">#{{i + 1}}</span>
-          <span class="player-name">{{ player.name }}</span>
-          <span class="player-score">{{ player.score }} punktów</span>
-        </div>
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Pozycja</th>
+              <th>Nazwa gracza</th>
+              <th>Punkty</th>
+              <th>Odpowiedzi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let player of players; let i = index">
+              <tr>
+                <td>#{{i + 1}}</td>
+                <td>{{ player.name }}</td>
+                <td>{{ player.score }}</td>
+                <td>
+                  <button (click)="togglePlayerAnswers(player.id)" class="toggle-btn">
+                    {{ expandedPlayers[player.id] ? 'Ukryj' : 'Pokaż' }}
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="expandedPlayers[player.id]" class="answers-row">
+                <td colspan="4">
+                  <div class="player-answers">
+                    <h4>Odpowiedzi gracza {{ player.name }}:</h4>
+                    <div *ngFor="let answer of player.answers; let qi = index" class="answer-item">
+                      <p><strong>Pytanie {{ qi + 1 }}:</strong> 
+                        <span [class.correct]="answer.isCorrect" [class.incorrect]="!answer.isCorrect">
+                          {{ answer.answerText }}
+                          ({{ answer.isCorrect ? 'Poprawna' : 'Niepoprawna' }})
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
       </div>
       <button class="restart-button" (click)="restartGame()">Zagraj ponownie</button>
     </div>

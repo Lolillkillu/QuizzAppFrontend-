@@ -37,6 +37,7 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
   questionStatuses: Array<'unanswered' | 'correct' | 'incorrect'> = [];
   allPlayersReady = false;
   playerStatus: 'playing' | 'completed' = 'playing';
+  expandedPlayers: { [playerId: string]: boolean } = {};
 
   constructor(
     private route: ActivatedRoute,
@@ -153,7 +154,6 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
           player.completed = true;
         }
         
-        // TYLKO dla gracza który ukończył
         if (playerId === this.playerId) {
           this.playerCompleted = true;
           this.playerStatus = 'completed';
@@ -203,10 +203,14 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
         this.gameStatus = 'completed';
         this.playerCompleted = true;
         this.playerStatus = 'completed';
-        this.players = results.map((r: any) => ({
-          name: r.playerName,
-          score: r.score
-        }));
+        this.players = results
+          .map((r: any) => ({
+            id: r.playerId,
+            name: r.playerName,
+            score: r.score,
+            answers: r.answers
+          }))
+          .sort((a, b) => b.score - a.score);
       })
     );
 
@@ -279,6 +283,10 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
         this.errorMessage = 'Błąd kopiowania linku';
         console.error('Błąd kopiowania:', err);
       });
+  }
+
+  togglePlayerAnswers(playerId: string): void {
+    this.expandedPlayers[playerId] = !this.expandedPlayers[playerId];
   }
 
   ngOnDestroy(): void {
