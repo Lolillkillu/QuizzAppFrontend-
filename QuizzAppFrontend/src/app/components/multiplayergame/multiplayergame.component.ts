@@ -206,9 +206,9 @@ export class MultiplayerGameComponent implements OnInit, OnDestroy {
         this.players = results
           .map((r: any) => ({
             id: r.playerId,
-            name: r.playerName,
+            name: r.playerName || 'Anonim',
             score: r.score,
-            answers: r.answers
+            answers: r.answers || []
           }))
           .sort((a, b) => b.score - a.score);
       })
